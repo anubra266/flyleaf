@@ -22,7 +22,7 @@ const FLYLEAF_CSS = `
   /* Safari's exact geometry: a thin backdrop strip above the paper
      (~8px) and ~45px side margins; the paper runs off the bottom. */
   /* symmetric breathing: vertical margin top and bottom, wider sides */
-  padding: 28px 45px;
+  padding: 28px 24px;
 }
 #flyleaf-reader * { all: revert; box-sizing: border-box; font-family: inherit; }
 
@@ -32,19 +32,27 @@ const FLYLEAF_CSS = `
    no shadow — just the tone difference between backdrop and sheet,
    full height, side margins only. */
 #flyleaf-sheet {
+  /* the paper is a card sized to the reading column and CENTERED on the
+     backdrop; its width scales with zoom (capped to the window) so the
+     whole sheet grows as you zoom in, like Safari. */
   background: var(--fl-bg);
+  max-width: calc(760px * var(--fl-zoom, 1));
+  margin: 0 auto;
   min-height: calc(100vh - 56px);
 }
 @media (max-width: 700px) {
   #flyleaf-reader { padding: 14px 12px; }
-  #flyleaf-sheet { min-height: calc(100vh - 28px); }
+  #flyleaf-sheet { min-height: calc(100vh - 28px); max-width: 100%; }
 }
 
 #flyleaf-page {
   /* Safari-style: a fixed reading column, centered on the paper. Zoom
      scales the text (calc below) so the column holds fewer words per
      line as you zoom in — layout stays put, only text grows. */
-  max-width: 720px;
+  /* BOTH the column width and the text scale with zoom (like Safari),
+     so the column widens as you zoom in. width stays auto, so it only
+     grows up to the sheet — never forces horizontal scroll. */
+  max-width: calc(720px * var(--fl-zoom, 1));
   margin: 0 auto;
   padding: 8px 24px 88px;
   font-size: calc(19px * var(--fl-zoom, 1));

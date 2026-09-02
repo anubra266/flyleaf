@@ -331,12 +331,14 @@
     }
   }
 
-  function openReader() {
+  function openReader(quiet) {
     if (reader) return true;
     const article = extract();
     if (!article || !article.node.textContent.trim()) {
-      curtainOff();
-      toast('Flyleaf: no readable chapter found on this page');
+      if (!quiet) {
+        curtainOff();
+        toast('Flyleaf: no readable chapter found on this page');
+      }
       return false;
     }
     nav = findNav();
@@ -672,9 +674,10 @@
       progress = null;
       document.documentElement.classList.remove('flyleaf-on');
       bodyWasRemoved = false;
-      waitForContent(() => openReader());
-    } else if (siteCfg().enabled) {
-      waitForContent(() => openReader());
+      autoOpen();
+    } else if (shouldAutoOpen()) {
+      curtainOn();
+      autoOpen();
     }
   }
   const _push = history.pushState;
@@ -692,6 +695,15 @@
   window.addEventListener('popstate', onNav);
 
   /* ---------------- boot ---------------- */
+
+  function autoOpen(tries = 0) {
+    if (openReader(true)) return; /* success — reader is up */
+    if (tries < 50) {
+      setTimeout(() => autoOpen(tries + 1), 300); /* ~15s of retries */
+    } else {
+      curtainOff(); /* genuinely no article here — reveal the site */
+    }
+  }
 
   function waitForContent(fn, tries = 0) {
     if (pageHasContent()) {
@@ -774,7 +786,7 @@
     }
 
     if (shouldAutoOpen()) {
-      waitForContent(() => openReader());
+      autoOpen();
     }
   }
 
