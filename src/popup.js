@@ -23,7 +23,8 @@ const FONTS = {
   times: 'Times New Roman',
 };
 
-const DEFAULT_PREFS = { theme: 'midnight', font: 'system', size: 18, margin: 22, lh: 1.8, mode: 'modal' };
+const ZOOM_STEPS = [50, 75, 85, 100, 115, 125, 150, 175, 200, 250, 300];
+const DEFAULT_PREFS = { theme: 'midnight', font: 'system', zoom: 100, lh: 1.8, mode: 'modal' };
 
 let prefs = { ...DEFAULT_PREFS };
 let status = null; /* from the content script; null = not available here */
@@ -85,31 +86,25 @@ function render() {
   sel.addEventListener('change', async () => { prefs.font = sel.value; await savePrefs(); });
   app.appendChild(sel);
 
-  /* text size */
-  app.appendChild(el('div', { class: 'fl-label', text: 'Text size' }));
-  const bump = async (d) => {
-    prefs.size = Math.min(42, Math.max(14, prefs.size + d));
+  /* zoom (Safari-style) */
+  app.appendChild(el('div', { class: 'fl-label', text: 'Zoom' }));
+  const stepZoom = async (dir) => {
+    let i = ZOOM_STEPS.indexOf(prefs.zoom);
+    if (i === -1) i = ZOOM_STEPS.indexOf(100);
+    i = Math.min(ZOOM_STEPS.length - 1, Math.max(0, i + dir));
+    prefs.zoom = ZOOM_STEPS[i];
     await savePrefs();
     render();
   };
   app.appendChild(
     el('div', { class: 'fl-stepper' }, [
-      el('button', { text: 'A−', onclick: () => bump(-1) }),
-      el('div', { class: 'fl-val', text: prefs.size + 'px' }),
-      el('button', { text: 'A+', onclick: () => bump(1) }),
+      el('button', { text: '−', onclick: () => stepZoom(-1) }),
+      el('div', { class: 'fl-val', text: prefs.zoom + '%' }),
+      el('button', { text: '+', onclick: () => stepZoom(1) }),
     ])
   );
 
-  /* width + line height */
-  app.appendChild(el('div', { class: 'fl-label', text: 'Page margins — ' + prefs.margin + '%' }));
-  const margin = el('input', { type: 'range', min: 0, max: 36, step: 1, value: prefs.margin });
-  margin.addEventListener('input', async () => {
-    prefs.margin = parseInt(margin.value, 10);
-    await savePrefs();
-    margin.previousSibling.textContent = 'Page margins — ' + prefs.margin + '%';
-  });
-  app.appendChild(margin);
-
+  /* line height */
   app.appendChild(el('div', { class: 'fl-label', text: 'Line height — ' + prefs.lh.toFixed(2) }));
   const lh = el('input', { type: 'range', min: 1.4, max: 2.3, step: 0.05, value: prefs.lh });
   lh.addEventListener('input', async () => {
@@ -178,7 +173,7 @@ function render() {
   app.appendChild(
     el('div', {
       class: 'fl-hint',
-      html: 'In reader: <kbd>←</kbd> <kbd>→</kbd> chapters · <kbd>−</kbd>/<kbd>+</kbd> size · <kbd>Esc</kbd> hide<br><kbd>Alt+R</kbd> toggles from anywhere',
+      html: 'In reader: <kbd>←</kbd> <kbd>→</kbd> chapters · <kbd>−</kbd>/<kbd>+</kbd> zoom · <kbd>Esc</kbd> hide<br><kbd>Alt+R</kbd> toggles from anywhere',
     })
   );
 }

@@ -48,11 +48,14 @@
     times: { label: 'Times New Roman', stack: '"Times New Roman", Times, serif' },
   };
 
+  /* Safari-style zoom: one control scales the text inside a fixed
+     reading column (fewer words per line as it grows), no separate
+     size or margin knobs. */
+  const ZOOM_STEPS = [50, 75, 85, 100, 115, 125, 150, 175, 200, 250, 300];
   const DEFAULT_PREFS = {
     theme: 'midnight',
     font: 'system',
-    size: 18,
-    margin: 22, /* page margins as % of the sheet, each side */
+    zoom: 100,
     lh: 1.8,
     mode: 'modal', /* 'modal' hides the site DOM; 'page' removes it */
   };
@@ -292,8 +295,7 @@
     st.setProperty('--fl-chip', t.chip);
     st.setProperty('--fl-progress', t.progress);
     st.setProperty('--fl-font', (FONTS[prefs.font] || FONTS.system).stack);
-    st.setProperty('--fl-size', prefs.size + 'px');
-    st.setProperty('--fl-margin', prefs.margin + '%');
+    st.setProperty('--fl-zoom', (prefs.zoom / 100).toFixed(3));
     st.setProperty('--fl-lh', String(prefs.lh));
   }
 
@@ -577,6 +579,16 @@
     return tag === 'input' || tag === 'textarea' || tag === 'select';
   }
 
+  function stepZoom(dir) {
+    let i = ZOOM_STEPS.indexOf(prefs.zoom);
+    if (i === -1) i = ZOOM_STEPS.indexOf(100);
+    i = Math.min(ZOOM_STEPS.length - 1, Math.max(0, i + dir));
+    prefs.zoom = ZOOM_STEPS[i];
+    applyPrefs();
+    store.set('prefs', prefs);
+    toast('Zoom ' + prefs.zoom + '%');
+  }
+
   document.addEventListener(
     'keydown',
     (e) => {
@@ -606,18 +618,12 @@
         case '-':
         case '_':
           e.preventDefault();
-          prefs.size = Math.max(14, prefs.size - 1);
-          applyPrefs();
-          store.set('prefs', prefs);
-          toast('Text ' + prefs.size + 'px');
+          stepZoom(-1);
           break;
         case '+':
         case '=':
           e.preventDefault();
-          prefs.size = Math.min(42, prefs.size + 1);
-          applyPrefs();
-          store.set('prefs', prefs);
-          toast('Text ' + prefs.size + 'px');
+          stepZoom(1);
           break;
       }
     },

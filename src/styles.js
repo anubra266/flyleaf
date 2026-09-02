@@ -41,22 +41,25 @@ const FLYLEAF_CSS = `
 }
 
 #flyleaf-page {
-  /* the text fills the paper minus the margins you set — no width math */
+  /* Safari-style: a fixed reading column, centered on the paper. Zoom
+     scales the text (calc below) so the column holds fewer words per
+     line as you zoom in — layout stays put, only text grows. */
+  max-width: 720px;
   margin: 0 auto;
-  padding: 56px var(--fl-margin, 22%) 88px;
-  font-size: var(--fl-size);
+  padding: 8px 24px 88px;
+  font-size: calc(19px * var(--fl-zoom, 1));
   line-height: var(--fl-lh);
   letter-spacing: 0.003em;
 }
 
 #flyleaf-reader .fl-site {
-  font-size: 12px; font-weight: 500; letter-spacing: .05em;
-  text-transform: uppercase; color: var(--fl-dim); margin: 0 0 10px;
+  font-size: .65em; font-weight: 500; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--fl-dim); margin: 0 0 .8em;
 }
 #flyleaf-reader .fl-title {
-  font-size: clamp(26px, 4vw, 38px); font-weight: 700;
+  font-size: 2em; font-weight: 700;
   letter-spacing: -.03em; line-height: 1.15; color: var(--fl-strong);
-  margin: 0 0 26px;
+  margin: 0 0 1.3em;
 }
 
 #flyleaf-reader .fl-nav {
@@ -64,7 +67,7 @@ const FLYLEAF_CSS = `
 }
 #flyleaf-reader .fl-pill {
   display: inline-flex; align-items: center;
-  font-size: 13px; font-weight: 500;
+  font-size: .72em; font-weight: 500;
   background: var(--fl-chip); border: 1px solid var(--fl-border);
   border-radius: 999px; color: var(--fl-muted); padding: 7px 16px;
   text-decoration: none; cursor: pointer;
