@@ -155,7 +155,19 @@
 
   function extract() {
     if (typeof Readability !== 'function') return null;
+
+    /* markHidden() reads real layout (getBoundingClientRect). If our
+       anti-flash curtain has already forced body{display:none}, every
+       element reports a 0x0 rect and would be flagged hidden — which
+       stripped the WHOLE page and made Readability return null (reader
+       failed to open on reload / next chapter). So reveal the page for
+       the synchronous duration of marking, then re-hide before we yield
+       back to the event loop — no paint happens in between, no flash. */
+    const hadCurtain = !!curtain;
+    if (hadCurtain) curtain.remove();
     const marked = markHidden();
+    if (hadCurtain) document.documentElement.appendChild(curtain);
+
     const clone = document.cloneNode(true);
     marked.forEach((n) => n.removeAttribute('data-fl-hidden'));
 
