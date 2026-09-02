@@ -30,10 +30,10 @@
   /* Safari Reader's paper feel: a darker BACKDROP behind a raised,
      rounded SHEET (bg) that carries the text. edge = the sheet's ring. */
   const THEMES = {
-    light: { backdrop: '#eeeeee', bg: '#ffffff', edge: 'transparent', text: '#333333', strong: '#111111', muted: '#666666', dim: '#999999', border: '#e4e4e4', borderHi: '#cccccc', chip: '#f0f0f0', progress: '#999999' },
-    sepia: { backdrop: '#e5ddc8', bg: '#f2ecdb', edge: 'transparent', text: '#4a4030', strong: '#2f2818', muted: '#7a6f58', dim: '#9c9077', border: '#e0d5bb', borderHi: '#c9bd9f', chip: '#e9e2cd', progress: '#9c9077' },
-    gray: { backdrop: '#2c2c2e', bg: '#48484c', edge: 'transparent', text: '#d6d6d8', strong: '#f2f2f3', muted: '#a9a9ad', dim: '#8b8b90', border: '#5a5a60', borderHi: '#6d6d73', chip: '#404044', progress: '#a9a9ad' },
-    midnight: { backdrop: '#000000', bg: '#1c1c1e', edge: 'transparent', text: '#cfcfd2', strong: '#f2f2f3', muted: '#9b9ba1', dim: '#7c7c82', border: '#2c2c2e', borderHi: '#3a3a3c', chip: '#2c2c2e', progress: '#d5d5d7' },
+    light:    { backdrop: '#e8e8ea', bg: '#ffffff', edge: 'transparent', text: '#2c2c2c', strong: '#111111', muted: '#666666', dim: '#999999', border: '#e2e2e2', borderHi: '#cfcfcf', chip: '#f1f1f1', progress: '#888888' },
+    sepia:    { backdrop: '#e2d7bd', bg: '#f4ecd8', edge: 'transparent', text: '#48402f', strong: '#2c2518', muted: '#786c53', dim: '#9a8e73', border: '#ded2b6', borderHi: '#c8bb9b', chip: '#ebe1c9', progress: '#9a8e73' },
+    gray:     { backdrop: '#303033', bg: '#46464a', edge: 'transparent', text: '#e3e3e5', strong: '#ffffff', muted: '#adadb2', dim: '#8c8c92', border: '#55555b', borderHi: '#6a6a70', chip: '#525258', progress: '#adadb2' },
+    midnight: { backdrop: '#000000', bg: '#101012', edge: 'transparent', text: '#cececf', strong: '#f2f2f3', muted: '#8f8f95', dim: '#6f6f76', border: '#1e1e20', borderHi: '#2a2a2c', chip: '#1a1a1c', progress: '#cfcfd0' },
   };
 
   const FONTS = {
@@ -363,6 +363,7 @@
     applyPrefs();
     window.scrollTo(0, 0);
     curtainOff();
+    try { sessionStorage.setItem('flyleaf-active', '1'); } catch (e) {}
     return true;
   }
 
@@ -385,6 +386,7 @@
       await saveSite({ enabled: true });
     } else {
       await saveSite({ enabled: false });
+      try { sessionStorage.removeItem('flyleaf-active'); } catch (e) {}
       closeReader();
     }
   }
@@ -753,9 +755,14 @@
       return;
     }
 
-    if (siteCfg().enabled) {
+    if (shouldAutoOpen()) {
       waitForContent(() => openReader());
     }
+  }
+
+  function shouldAutoOpen() {
+    if (siteCfg().enabled) return true;
+    try { return sessionStorage.getItem('flyleaf-active') === '1'; } catch (e) { return false; }
   }
 
   /* Runs at document_start: storage resolves in a few ms, typically
@@ -764,7 +771,7 @@
   (async function early() {
     prefs = { ...DEFAULT_PREFS, ...(await store.get('prefs', {})) };
     sites = await store.get('sites', {});
-    if (siteCfg().enabled && !sessionStorage.getItem('flyleaf-pick')) {
+    if (shouldAutoOpen() && !sessionStorage.getItem('flyleaf-pick')) {
       curtainOn();
     }
     if (document.readyState === 'loading') {

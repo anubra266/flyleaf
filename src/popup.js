@@ -6,9 +6,9 @@
 
 const THEMES = {
   light: { bg: '#ffffff', check: '#111111' },
-  sepia: { bg: '#f2ecdb', check: '#2f2818' },
-  gray: { bg: '#48484c', check: '#f2f2f3' },
-  midnight: { bg: '#000000', check: '#ededed' },
+  sepia: { bg: '#f4ecd8', check: '#2c2518' },
+  gray: { bg: '#46464a', check: '#ffffff' },
+  midnight: { bg: '#101012', check: '#f2f2f3' },
 };
 
 const FONTS = {
