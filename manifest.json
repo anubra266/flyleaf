@@ -28,7 +28,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["vendor/Readability.js", "src/styles.js", "src/content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_start"
     }
   ]
 }

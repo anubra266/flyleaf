@@ -252,6 +252,31 @@
   let savedScroll = 0;
   let bodyWasRemoved = false;
 
+  /* The anti-flash curtain: on sites where reader is enabled, the page
+     is hidden and painted in the theme backdrop BEFORE first paint
+     (script runs at document_start), then the reader replaces it with
+     no visible flash of the original site. Fails open after 15s. */
+  let curtain = null;
+  let curtainTimer = null;
+  function curtainOn() {
+    if (curtain) return;
+    const t = THEMES[prefs.theme] || THEMES.midnight;
+    curtain = document.createElement('style');
+    curtain.id = 'flyleaf-curtain';
+    curtain.textContent =
+      'html{background:' + t.backdrop + ' !important}' +
+      'body{display:none !important}';
+    document.documentElement.appendChild(curtain);
+    curtainTimer = setTimeout(curtainOff, 15000);
+  }
+  function curtainOff() {
+    clearTimeout(curtainTimer);
+    if (curtain) {
+      curtain.remove();
+      curtain = null;
+    }
+  }
+
   function applyPrefs() {
     const t = THEMES[prefs.theme] || THEMES.midnight;
     const st = document.documentElement.style;
@@ -296,6 +321,7 @@
     if (reader) return true;
     const article = extract();
     if (!article || !article.node.textContent.trim()) {
+      curtainOff();
       toast('Flyleaf: no readable chapter found on this page');
       return false;
     }
@@ -336,6 +362,7 @@
 
     applyPrefs();
     window.scrollTo(0, 0);
+    curtainOff();
     return true;
   }
 
@@ -617,14 +644,14 @@
     if (location.href === lastHref) return;
     lastHref = location.href;
     if (reader) {
-      /* re-extract for the new chapter */
-      const wasRemoved = bodyWasRemoved;
+      /* re-extract for the new chapter behind the curtain */
+      curtainOn();
       if (reader) reader.remove();
       if (progress) progress.remove();
       reader = null;
       progress = null;
       document.documentElement.classList.remove('flyleaf-on');
-      bodyWasRemoved = wasRemoved && false;
+      bodyWasRemoved = false;
       waitForContent(() => openReader());
     } else if (siteCfg().enabled) {
       waitForContent(() => openReader());
@@ -652,6 +679,7 @@
       return;
     }
     if (tries < 40) setTimeout(() => waitForContent(fn, tries + 1), 300);
+    else curtainOff();
   }
 
   function refreshNavUi() {
@@ -712,9 +740,7 @@
     }
   });
 
-  async function boot() {
-    prefs = { ...DEFAULT_PREFS, ...(await store.get('prefs', {})) };
-    sites = await store.get('sites', {});
+  function boot() {
     applyPrefs();
     ensureStyle();
 
@@ -722,6 +748,7 @@
     const pendingPick = sessionStorage.getItem('flyleaf-pick');
     if (pendingPick) {
       sessionStorage.removeItem('flyleaf-pick');
+      curtainOff();
       waitForContent(() => startPicking(pendingPick));
       return;
     }
@@ -731,9 +758,19 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+  /* Runs at document_start: storage resolves in a few ms, typically
+     before the parser has produced anything paintable — so on enabled
+     sites the curtain beats first paint and there is no flash. */
+  (async function early() {
+    prefs = { ...DEFAULT_PREFS, ...(await store.get('prefs', {})) };
+    sites = await store.get('sites', {});
+    if (siteCfg().enabled && !sessionStorage.getItem('flyleaf-pick')) {
+      curtainOn();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  })();
 })();
