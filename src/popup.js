@@ -166,7 +166,10 @@ function render() {
     onclick: async () => {
       if (!status) return;
       await send({ type: 'flyleaf-set-enabled', on: !status.active });
-      window.close();
+      /* stay open — just flip the button once the reader settles.
+         Opening waits for page content, so poll status twice. */
+      setTimeout(refreshStatus, 200);
+      setTimeout(refreshStatus, 900);
     },
   });
   if (!status) primary.disabled = true;
