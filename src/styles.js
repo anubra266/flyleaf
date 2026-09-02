@@ -40,9 +40,9 @@ const FLYLEAF_CSS = `
 }
 
 #flyleaf-page {
-  max-width: var(--fl-width);
+  /* the text fills the paper minus the margins you set — no width math */
   margin: 0 auto;
-  padding: 56px 24px 88px;
+  padding: 56px var(--fl-margin, 22%) 88px;
   font-size: var(--fl-size);
   line-height: var(--fl-lh);
   letter-spacing: 0.003em;

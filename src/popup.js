@@ -23,7 +23,7 @@ const FONTS = {
   times: 'Times New Roman',
 };
 
-const DEFAULT_PREFS = { theme: 'midnight', font: 'system', size: 18, width: 680, lh: 1.8, mode: 'modal' };
+const DEFAULT_PREFS = { theme: 'midnight', font: 'system', size: 18, margin: 22, lh: 1.8, mode: 'modal' };
 
 let prefs = { ...DEFAULT_PREFS };
 let status = null; /* from the content script; null = not available here */
@@ -101,14 +101,14 @@ function render() {
   );
 
   /* width + line height */
-  app.appendChild(el('div', { class: 'fl-label', text: 'Column width — ' + prefs.width + 'px' }));
-  const width = el('input', { type: 'range', min: 480, max: 1500, step: 20, value: prefs.width });
-  width.addEventListener('input', async () => {
-    prefs.width = parseInt(width.value, 10);
+  app.appendChild(el('div', { class: 'fl-label', text: 'Page margins — ' + prefs.margin + '%' }));
+  const margin = el('input', { type: 'range', min: 0, max: 36, step: 1, value: prefs.margin });
+  margin.addEventListener('input', async () => {
+    prefs.margin = parseInt(margin.value, 10);
     await savePrefs();
-    width.previousSibling.textContent = 'Column width — ' + prefs.width + 'px';
+    margin.previousSibling.textContent = 'Page margins — ' + prefs.margin + '%';
   });
-  app.appendChild(width);
+  app.appendChild(margin);
 
   app.appendChild(el('div', { class: 'fl-label', text: 'Line height — ' + prefs.lh.toFixed(2) }));
   const lh = el('input', { type: 'range', min: 1.4, max: 2.3, step: 0.05, value: prefs.lh });

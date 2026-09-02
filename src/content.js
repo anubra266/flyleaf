@@ -52,7 +52,7 @@
     theme: 'midnight',
     font: 'system',
     size: 18,
-    width: 680,
+    margin: 22, /* page margins as % of the sheet, each side */
     lh: 1.8,
     mode: 'modal', /* 'modal' hides the site DOM; 'page' removes it */
   };
@@ -268,7 +268,7 @@
     st.setProperty('--fl-progress', t.progress);
     st.setProperty('--fl-font', (FONTS[prefs.font] || FONTS.system).stack);
     st.setProperty('--fl-size', prefs.size + 'px');
-    st.setProperty('--fl-width', prefs.width + 'px');
+    st.setProperty('--fl-margin', prefs.margin + '%');
     st.setProperty('--fl-lh', String(prefs.lh));
   }
 
