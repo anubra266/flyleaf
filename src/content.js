@@ -52,7 +52,7 @@
     size: 18,
     width: 680,
     lh: 1.8,
-    mode: 'page', /* 'page' removes the site DOM; 'modal' hides it */
+    mode: 'modal', /* 'modal' hides the site DOM; 'page' removes it */
   };
 
   /* ---------------- storage ---------------- */
@@ -269,15 +269,18 @@
   }
 
   function navBar() {
-    const mk = (url, label) => {
-      const n = el(url ? 'a' : 'span', { html: label });
+    const card = (url, dir) => {
+      const n = el(url ? 'a' : 'span', { class: 'fl-card fl-' + dir }, [
+        el('span', { class: 'fl-kick', text: dir === 'prev' ? 'Previous' : 'Next' }),
+        el('span', {
+          class: 'fl-word',
+          html: dir === 'prev' ? '&larr;&nbsp; Chapter' : 'Chapter &nbsp;&rarr;',
+        }),
+      ]);
       if (url) n.setAttribute('href', url);
       return n;
     };
-    return el('div', { class: 'fl-nav' }, [
-      mk(nav.prev, '&larr; Previous'),
-      mk(nav.next, 'Next &rarr;'),
-    ]);
+    return el('div', { class: 'fl-nav' }, [card(nav.prev, 'prev'), card(nav.next, 'next')]);
   }
 
   function ensureStyle() {
@@ -372,20 +375,24 @@
     if (link.id) candidates.push('#' + CSS.escape(link.id));
     const rel = link.getAttribute('rel');
     if (rel) candidates.push('a[rel="' + CSS.escape(rel) + '"]');
-    const classes = [...link.classList].filter((c) => !/^\d|active|current/i.test(c));
+    /* class candidates must be SEMANTIC, not utility soup: Tailwind
+       variant classes (disabled:opacity-50, [&_svg]:size-4, …) are
+       unique-but-meaningless and produce monster selectors. Keep only
+       plain word-like classes, at most three, and cap total length. */
+    const semantic = (c) => /^[a-z][\w-]*$/i.test(c) && !/^(active|current|\d)/i.test(c);
+    const classes = [...link.classList].filter(semantic).slice(0, 3);
     if (classes.length) {
       candidates.push('a.' + classes.map((c) => CSS.escape(c)).join('.'));
     }
     const parent = link.parentElement;
-    if (parent && parent.className && typeof parent.className === 'string') {
-      const pc = parent.className.trim().split(/\s+/).slice(0, 2);
+    if (parent) {
+      const pc = [...parent.classList].filter(semantic).slice(0, 2);
       if (pc.length) {
-        candidates.push(
-          '.' + pc.map((c) => CSS.escape(c)).join('.') + ' a'
-        );
+        candidates.push('.' + pc.map((c) => CSS.escape(c)).join('.') + ' a');
       }
     }
     for (const sel of candidates) {
+      if (sel.length > 80) continue;
       try {
         if (document.querySelector(sel) === link) return sel;
       } catch {
@@ -474,7 +481,10 @@
       return;
     }
     await saveSite(which === 'prev' ? { prevSel: sel } : { nextSel: sel });
-    toast('Saved ' + which + ' → ' + sel);
+    const brief = sel.startsWith('text:')
+      ? 'link text “' + sel.slice(5) + '”'
+      : (sel.length > 46 ? sel.slice(0, 43) + '…' : sel);
+    toast('Saved ' + which + ' → ' + brief);
     /* return to the reader if we stepped out of it to pick */
     if (sessionStorage.getItem('flyleaf-resume') === '1') {
       sessionStorage.removeItem('flyleaf-resume');
@@ -591,7 +601,7 @@
 
     /* width + line height */
     panel.appendChild(el('div', { class: 'fl-label', text: 'Column width — ' + prefs.width + 'px' }));
-    const width = el('input', { type: 'range', min: 480, max: 920, step: 10, value: prefs.width });
+    const width = el('input', { type: 'range', min: 480, max: 1500, step: 20, value: prefs.width });
     width.addEventListener('input', async () => {
       prefs.width = parseInt(width.value, 10);
       applyPrefs();
@@ -637,12 +647,26 @@
       el('div', { class: 'fl-row2' }, [
         el('button', { class: 'fl-btn', text: 'Pick “previous”', onclick: () => startPicking('prev') }),
         el('button', { class: 'fl-btn', text: 'Pick “next”', onclick: () => startPicking('next') }),
+        el('button', {
+          class: 'fl-btn', text: 'Reset', title: 'Forget trained links, use auto-detection',
+          onclick: async () => {
+            await saveSite({ prevSel: null, nextSel: null });
+            nav = findNav();
+            if (reader) reader.querySelectorAll('.fl-nav').forEach((n) => n.replaceWith(navBar()));
+            buildPanel();
+            toast('Back to auto-detection');
+          },
+        }),
       ])
     );
     const cfg = siteCfg();
+    const pretty = (sel) => {
+      if (sel.startsWith('text:')) return 'link text “' + sel.slice(5) + '”';
+      return sel.length > 46 ? sel.slice(0, 30) + '…' + sel.slice(-13) : sel;
+    };
     const status = [];
-    status.push(cfg.prevSel ? '← custom: ' + cfg.prevSel : '← auto' + (nav.prev ? ' ✓' : ' (not found)'));
-    status.push(cfg.nextSel ? '→ custom: ' + cfg.nextSel : '→ auto' + (nav.next ? ' ✓' : ' (not found)'));
+    status.push(cfg.prevSel ? '← custom: ' + pretty(cfg.prevSel) : '← auto' + (nav.prev ? ' ✓' : ' (not found)'));
+    status.push(cfg.nextSel ? '→ custom: ' + pretty(cfg.nextSel) : '→ auto' + (nav.next ? ' ✓' : ' (not found)'));
     panel.appendChild(el('div', { class: 'fl-nav-status', text: status.join('\n') }));
 
     /* the Safari "Hide Reader" button */

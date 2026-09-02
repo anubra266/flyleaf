@@ -41,15 +41,26 @@ const FLYLEAF_CSS = `
   margin: 0 0 26px;
 }
 
-#flyleaf-reader .fl-nav { display: flex; gap: 8px; justify-content: center; margin: 26px 0; }
-#flyleaf-reader .fl-nav a, #flyleaf-reader .fl-nav span {
-  display: inline-flex; align-items: center; font-size: 13px; font-weight: 500;
-  background: var(--fl-chip); border: 1px solid var(--fl-border); border-radius: 8px;
-  color: var(--fl-muted); padding: 8px 16px; text-decoration: none; cursor: pointer;
-  transition: border-color 120ms ease, color 120ms ease;
+#flyleaf-reader .fl-nav {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 30px 0;
 }
-#flyleaf-reader .fl-nav a:hover { border-color: var(--fl-border-hi); color: var(--fl-strong); }
-#flyleaf-reader .fl-nav span { opacity: .35; cursor: default; }
+#flyleaf-reader .fl-card {
+  display: flex; flex-direction: column; gap: 4px;
+  background: var(--fl-chip); border: 1px solid var(--fl-border);
+  border-radius: 12px; padding: 14px 18px; text-decoration: none;
+  cursor: pointer; transition: border-color 120ms ease;
+}
+#flyleaf-reader a.fl-card:hover { border-color: var(--fl-border-hi); }
+#flyleaf-reader span.fl-card { opacity: .35; cursor: default; }
+#flyleaf-reader .fl-next { align-items: flex-end; text-align: right; }
+#flyleaf-reader .fl-kick {
+  font-size: 11px; font-weight: 600; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--fl-dim);
+}
+#flyleaf-reader .fl-word { font-size: 15px; font-weight: 600; color: var(--fl-strong); }
+@media (max-width: 560px) {
+  #flyleaf-reader .fl-nav { grid-template-columns: 1fr; }
+}
 
 #flyleaf-body p { margin: 0 0 1.5em; color: var(--fl-text); }
 #flyleaf-body h1, #flyleaf-body h2, #flyleaf-body h3, #flyleaf-body h4 {
@@ -151,7 +162,7 @@ const FLYLEAF_CSS = `
   color: #a1a1a1; font-size: 12px; padding: 8px 6px; cursor: pointer;
 }
 #flyleaf-panel .fl-btn:hover { border-color: #2e2e2e; color: #ededed; }
-#flyleaf-panel .fl-nav-status { font-size: 11.5px; color: #707070; margin-top: 6px; line-height: 1.6; }
+#flyleaf-panel .fl-nav-status { font-size: 11.5px; color: #707070; margin-top: 6px; line-height: 1.6; white-space: pre-line; word-break: break-all; }
 
 #flyleaf-panel .fl-primary {
   width: 100%; margin-top: 16px; background: #ededed; border: 0; border-radius: 8px;
