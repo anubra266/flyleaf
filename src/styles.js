@@ -8,17 +8,29 @@
    every frame and is the classic sticky-header jank. */
 
 const FLYLEAF_CSS = `
-:root.flyleaf-on { background: var(--fl-bg) !important; }
+:root.flyleaf-on { background: var(--fl-backdrop) !important; }
 :root.flyleaf-on body { display: none !important; }
 
 #flyleaf-reader {
   display: block;
   min-height: 100vh;
-  background: var(--fl-bg);
+  background: var(--fl-backdrop);
   color: var(--fl-text);
   font-family: var(--fl-font);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  padding: 26px 44px 0;
+}
+/* the paper: a raised, rounded sheet the text lives on (Safari Reader) */
+#flyleaf-sheet {
+  background: var(--fl-bg);
+  border-radius: 16px 16px 0 0;
+  min-height: calc(100vh - 26px);
+  box-shadow: 0 0 0 1px var(--fl-edge), 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+@media (max-width: 700px) {
+  #flyleaf-reader { padding: 10px 8px 0; }
+  #flyleaf-sheet { border-radius: 10px 10px 0 0; min-height: calc(100vh - 10px); }
 }
 #flyleaf-reader * { all: revert; box-sizing: border-box; font-family: inherit; }
 
@@ -42,25 +54,18 @@ const FLYLEAF_CSS = `
 }
 
 #flyleaf-reader .fl-nav {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 30px 0;
+  display: flex; gap: 10px; justify-content: center; margin: 28px 0;
 }
-#flyleaf-reader .fl-card {
-  display: flex; flex-direction: column; gap: 4px;
+#flyleaf-reader .fl-pill {
+  display: inline-flex; align-items: center;
+  font-size: 13px; font-weight: 500;
   background: var(--fl-chip); border: 1px solid var(--fl-border);
-  border-radius: 12px; padding: 14px 18px; text-decoration: none;
-  cursor: pointer; transition: border-color 120ms ease;
+  border-radius: 999px; color: var(--fl-muted); padding: 7px 16px;
+  text-decoration: none; cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease;
 }
-#flyleaf-reader a.fl-card:hover { border-color: var(--fl-border-hi); }
-#flyleaf-reader span.fl-card { opacity: .35; cursor: default; }
-#flyleaf-reader .fl-next { align-items: flex-end; text-align: right; }
-#flyleaf-reader .fl-kick {
-  font-size: 11px; font-weight: 600; letter-spacing: .07em;
-  text-transform: uppercase; color: var(--fl-dim);
-}
-#flyleaf-reader .fl-word { font-size: 15px; font-weight: 600; color: var(--fl-strong); }
-@media (max-width: 560px) {
-  #flyleaf-reader .fl-nav { grid-template-columns: 1fr; }
-}
+#flyleaf-reader a.fl-pill:hover { border-color: var(--fl-border-hi); color: var(--fl-strong); }
+#flyleaf-reader span.fl-pill { opacity: .35; cursor: default; }
 
 #flyleaf-body p { margin: 0 0 1.5em; color: var(--fl-text); }
 #flyleaf-body h1, #flyleaf-body h2, #flyleaf-body h3, #flyleaf-body h4 {
@@ -121,7 +126,7 @@ const FLYLEAF_CSS = `
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; transition: border-color 120ms ease;
 }
-#flyleaf-panel .fl-swatch.fl-active { border-color: #ededed; }
+#flyleaf-panel .fl-swatch.fl-active { border-color: #ededed; font-weight: 700; }
 
 #flyleaf-panel select {
   width: 100%; background: #000; border: 1px solid #1f1f1f; border-radius: 8px;

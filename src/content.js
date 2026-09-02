@@ -27,11 +27,13 @@
 
   /* ---------------- themes / fonts (Safari Reader's set) ---------------- */
 
+  /* Safari Reader's paper feel: a darker BACKDROP behind a raised,
+     rounded SHEET (bg) that carries the text. edge = the sheet's ring. */
   const THEMES = {
-    light: { bg: '#ffffff', text: '#333333', strong: '#111111', muted: '#666666', dim: '#999999', border: '#e4e4e4', borderHi: '#cccccc', chip: '#f5f5f5', progress: '#999999' },
-    sepia: { bg: '#f4ecd8', text: '#4a4030', strong: '#2f2818', muted: '#7a6f58', dim: '#9c9077', border: '#e0d5bb', borderHi: '#c9bd9f', chip: '#ede3cc', progress: '#9c9077' },
-    gray: { bg: '#454549', text: '#d6d6d8', strong: '#f2f2f3', muted: '#a9a9ad', dim: '#8b8b90', border: '#57575c', borderHi: '#6a6a70', chip: '#3d3d41', progress: '#a9a9ad' },
-    midnight: { bg: '#000000', text: '#d4d4d4', strong: '#ededed', muted: '#a1a1a1', dim: '#707070', border: '#1f1f1f', borderHi: '#2e2e2e', chip: '#0a0a0a', progress: '#ffffff' },
+    light: { backdrop: '#ececec', bg: '#ffffff', edge: 'rgba(0,0,0,0.08)', text: '#333333', strong: '#111111', muted: '#666666', dim: '#999999', border: '#e4e4e4', borderHi: '#cccccc', chip: '#f5f5f5', progress: '#999999' },
+    sepia: { backdrop: '#e7ddc4', bg: '#f6efdd', edge: 'rgba(120,100,60,0.18)', text: '#4a4030', strong: '#2f2818', muted: '#7a6f58', dim: '#9c9077', border: '#e0d5bb', borderHi: '#c9bd9f', chip: '#ede3cc', progress: '#9c9077' },
+    gray: { backdrop: '#313135', bg: '#4b4b50', edge: 'rgba(255,255,255,0.06)', text: '#d6d6d8', strong: '#f2f2f3', muted: '#a9a9ad', dim: '#8b8b90', border: '#5a5a60', borderHi: '#6d6d73', chip: '#434347', progress: '#a9a9ad' },
+    midnight: { backdrop: '#000000', bg: '#0b0b0c', edge: 'rgba(255,255,255,0.06)', text: '#d4d4d4', strong: '#ededed', muted: '#a1a1a1', dim: '#707070', border: '#1f1f1f', borderHi: '#2e2e2e', chip: '#131314', progress: '#ffffff' },
   };
 
   const FONTS = {
@@ -254,6 +256,8 @@
     const t = THEMES[prefs.theme] || THEMES.midnight;
     const st = document.documentElement.style;
     st.setProperty('--fl-bg', t.bg);
+    st.setProperty('--fl-backdrop', t.backdrop);
+    st.setProperty('--fl-edge', t.edge);
     st.setProperty('--fl-text', t.text);
     st.setProperty('--fl-strong', t.strong);
     st.setProperty('--fl-muted', t.muted);
@@ -269,18 +273,15 @@
   }
 
   function navBar() {
-    const card = (url, dir) => {
-      const n = el(url ? 'a' : 'span', { class: 'fl-card fl-' + dir }, [
-        el('span', { class: 'fl-kick', text: dir === 'prev' ? 'Previous' : 'Next' }),
-        el('span', {
-          class: 'fl-word',
-          html: dir === 'prev' ? '&larr;&nbsp; Chapter' : 'Chapter &nbsp;&rarr;',
-        }),
-      ]);
+    const pill = (url, html) => {
+      const n = el(url ? 'a' : 'span', { class: 'fl-pill', html });
       if (url) n.setAttribute('href', url);
       return n;
     };
-    return el('div', { class: 'fl-nav' }, [card(nav.prev, 'prev'), card(nav.next, 'next')]);
+    return el('div', { class: 'fl-nav' }, [
+      pill(nav.prev, '&larr;&nbsp; Previous'),
+      pill(nav.next, 'Next &nbsp;&rarr;'),
+    ]);
   }
 
   function ensureStyle() {
@@ -308,12 +309,14 @@
       document.title.split(/[|\-–—]/)[0].trim();
 
     reader = el('div', { id: 'flyleaf-reader' }, [
+      el('div', { id: 'flyleaf-sheet' }, [
       el('div', { id: 'flyleaf-page' }, [
         el('p', { class: 'fl-site', text: HOST }),
         el('h1', { class: 'fl-title', text: title }),
         navBar(),
         el('div', { id: 'flyleaf-body' }, [article.node]),
         navBar(),
+      ]),
       ]),
     ]);
     progress = el('div', { id: 'flyleaf-progress' });
@@ -556,6 +559,7 @@
       const b = el('button', {
         class: 'fl-swatch' + (prefs.theme === key ? ' fl-active' : ''),
         title: key,
+        text: prefs.theme === key ? '✓' : '',
         onclick: async () => {
           prefs.theme = key;
           applyPrefs();
@@ -564,6 +568,7 @@
         },
       });
       b.style.background = t.bg;
+      b.style.color = t.strong;
       sw.appendChild(b);
     }
     panel.appendChild(sw);
