@@ -19,20 +19,22 @@ const FLYLEAF_CSS = `
   font-family: var(--fl-font);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  padding: 26px 44px 0;
-}
-/* the paper: a raised, rounded sheet the text lives on (Safari Reader) */
-#flyleaf-sheet {
-  background: var(--fl-bg);
-  border-radius: 16px 16px 0 0;
-  min-height: calc(100vh - 26px);
-  box-shadow: 0 0 0 1px var(--fl-edge), 0 12px 48px rgba(0, 0, 0, 0.18);
-}
-@media (max-width: 700px) {
-  #flyleaf-reader { padding: 10px 8px 0; }
-  #flyleaf-sheet { border-radius: 10px 10px 0 0; min-height: calc(100vh - 10px); }
+  padding: 0 44px;
 }
 #flyleaf-reader * { all: revert; box-sizing: border-box; font-family: inherit; }
+
+/* NOTE: the sheet rules must come AFTER the all:revert line — same
+   specificity (ID vs ID+universal), so source order decides. */
+/* the paper, exactly as Safari draws it: FLAT. No rounding, no ring,
+   no shadow — just the tone difference between backdrop and sheet,
+   full height, side margins only. */
+#flyleaf-sheet {
+  background: var(--fl-bg);
+  min-height: 100vh;
+}
+@media (max-width: 700px) {
+  #flyleaf-reader { padding: 0 8px; }
+}
 
 #flyleaf-page {
   max-width: var(--fl-width);
@@ -86,101 +88,6 @@ const FLYLEAF_CSS = `
 #flyleaf-progress {
   position: fixed; top: 0; left: 0; height: 2px; width: 0;
   background: var(--fl-progress); z-index: 2147483646; pointer-events: none;
-}
-
-/* floating toggle — quiet until hovered */
-#flyleaf-fab {
-  position: fixed; right: 16px; bottom: 16px; width: 40px; height: 40px;
-  border-radius: 50%; background: #0f0f0f; border: 1px solid #2e2e2e;
-  color: #a1a1a1; font: 600 14px/1 -apple-system, system-ui, sans-serif;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; opacity: .4; z-index: 2147483647; padding: 0;
-  transition: opacity 140ms ease, color 140ms ease;
-}
-#flyleaf-fab:hover, #flyleaf-fab.fl-open { opacity: 1; color: #ededed; }
-
-/* settings panel — Safari Reader popover structure:
-   theme swatches / fonts / size / layout / mode / nav / hide-reader */
-#flyleaf-panel {
-  position: fixed; right: 16px; bottom: 64px; width: 300px;
-  max-width: calc(100vw - 32px); max-height: calc(100vh - 90px); overflow-y: auto;
-  background: #0c0c0c; border: 1px solid #2e2e2e; border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(0,0,0,.8); padding: 16px;
-  z-index: 2147483647; font-family: -apple-system, system-ui, sans-serif;
-  color: #ededed; opacity: 0; transform: translateY(8px) scale(.98);
-  pointer-events: none; transition: opacity 160ms ease, transform 160ms ease;
-}
-#flyleaf-panel.fl-open { opacity: 1; transform: none; pointer-events: auto; }
-#flyleaf-panel * { all: revert; box-sizing: border-box; font-family: inherit; }
-
-#flyleaf-panel .fl-label {
-  font-size: 11px; font-weight: 600; letter-spacing: .06em;
-  text-transform: uppercase; color: #707070; margin: 14px 0 8px;
-}
-#flyleaf-panel .fl-label:first-child { margin-top: 0; }
-
-#flyleaf-panel .fl-swatches { display: flex; gap: 10px; }
-#flyleaf-panel .fl-swatch {
-  width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-  border: 2px solid #2e2e2e; padding: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; transition: border-color 120ms ease;
-}
-#flyleaf-panel .fl-swatch.fl-active { border-color: #ededed; font-weight: 700; }
-
-#flyleaf-panel select {
-  width: 100%; background: #000; border: 1px solid #1f1f1f; border-radius: 8px;
-  color: #d4d4d4; font-size: 13px; padding: 8px 10px;
-}
-
-#flyleaf-panel .fl-stepper { display: flex; gap: 4px; align-items: stretch; }
-#flyleaf-panel .fl-stepper button {
-  flex: 1; background: #000; border: 1px solid #1f1f1f; border-radius: 8px;
-  color: #d4d4d4; cursor: pointer; padding: 8px 0; font-size: 13px;
-}
-#flyleaf-panel .fl-stepper button:hover { border-color: #2e2e2e; color: #ededed; }
-#flyleaf-panel .fl-stepper .fl-val {
-  flex: 1.2; display: flex; align-items: center; justify-content: center;
-  font: 12px ui-monospace, Menlo, monospace; color: #707070;
-}
-
-#flyleaf-panel input[type=range] {
-  -webkit-appearance: none; appearance: none; width: 100%; height: 3px;
-  background: #2e2e2e; border-radius: 999px; outline: none; margin: 6px 0 0;
-  padding: 0; cursor: pointer; display: block;
-}
-#flyleaf-panel input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; appearance: none; width: 14px; height: 14px;
-  border-radius: 50%; background: #ededed; border: 0; cursor: pointer;
-}
-
-#flyleaf-panel .fl-seg { display: flex; gap: 4px; background: #000; border: 1px solid #1f1f1f; border-radius: 8px; padding: 3px; }
-#flyleaf-panel .fl-seg button {
-  flex: 1; background: transparent; border: 0; border-radius: 6px;
-  color: #707070; font-size: 12px; font-weight: 500; padding: 6px 4px; cursor: pointer;
-}
-#flyleaf-panel .fl-seg button.fl-active { background: #1a1a1a; color: #ededed; }
-
-#flyleaf-panel .fl-row2 { display: flex; gap: 8px; }
-#flyleaf-panel .fl-btn {
-  flex: 1; background: #000; border: 1px solid #1f1f1f; border-radius: 8px;
-  color: #a1a1a1; font-size: 12px; padding: 8px 6px; cursor: pointer;
-}
-#flyleaf-panel .fl-btn:hover { border-color: #2e2e2e; color: #ededed; }
-#flyleaf-panel .fl-nav-status { font-size: 11.5px; color: #707070; margin-top: 6px; line-height: 1.6; white-space: pre-line; word-break: break-all; }
-
-#flyleaf-panel .fl-primary {
-  width: 100%; margin-top: 16px; background: #ededed; border: 0; border-radius: 8px;
-  color: #000; font-size: 13px; font-weight: 600; padding: 10px 0; cursor: pointer;
-}
-
-#flyleaf-panel .fl-hint {
-  margin-top: 12px; padding-top: 10px; border-top: 1px solid #1f1f1f;
-  font-size: 11px; color: #707070; line-height: 1.7;
-}
-#flyleaf-panel kbd {
-  background: #000; border: 1px solid #2e2e2e; border-radius: 4px;
-  padding: 1px 5px; font: 10px ui-monospace, Menlo, monospace; color: #a1a1a1;
 }
 
 /* toast */

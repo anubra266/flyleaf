@@ -25,14 +25,16 @@ chapters, arrow-key navigation, per-site memory.
     (nothing left to lay out, paint, or composite); leaving reloads it
 - **Per-site on/off memory** — flip it on for a novel site once, every
   chapter opens in reader
-- **`Alt+R`** to toggle (rebindable at `chrome://extensions/shortcuts`),
-  or the toolbar button, or the floating `Aa` button
+- **All settings live in the toolbar popup** (click the Flyleaf icon) —
+  nothing is injected into pages until you enter the reader
+- **`Alt+R`** to toggle (rebindable at `chrome://extensions/shortcuts`)
 
 ## Install (unpacked)
 
 1. `chrome://extensions` → enable **Developer mode**
 2. **Load unpacked** → select this directory
-3. Open a chapter page and press `Alt+R`
+3. Open a chapter page and press `Alt+R`, or click the Flyleaf icon →
+   **Show Reader**
 
 ## In the reader
 
@@ -70,7 +72,8 @@ Behaviors here were each a bug once, on real novel sites:
 manifest.json         MV3 manifest
 src/background.js     toolbar click + Alt+R → message to content script
 src/styles.js         all injected CSS (scoped under #flyleaf-*)
-src/content.js        extraction, rendering, panel, picker, keys, SPA hooks
+src/popup.html+js     the settings popup (theme, font, size, mode, nav training)
+src/content.js        extraction, rendering, picker, keys, SPA hooks
 vendor/Readability.js Mozilla Readability (Apache-2.0), unmodified
 ```
 

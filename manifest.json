@@ -5,7 +5,8 @@
   "description": "Safari-style reader mode for serialized fiction — clean chapters, arrow-key navigation, per-site memory.",
   "permissions": ["storage"],
   "action": {
-    "default_title": "Toggle Flyleaf reader"
+    "default_title": "Flyleaf",
+    "default_popup": "src/popup.html"
   },
   "icons": {
     "16": "icons/icon16.png",

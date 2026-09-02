@@ -336,7 +336,6 @@
 
     applyPrefs();
     window.scrollTo(0, 0);
-    syncPanel();
     return true;
   }
 
@@ -351,7 +350,6 @@
       return;
     }
     window.scrollTo(0, savedScroll);
-    syncPanel();
   }
 
   async function setEnabled(on) {
@@ -362,7 +360,6 @@
       await saveSite({ enabled: false });
       closeReader();
     }
-    syncPanel();
   }
 
   /* ---------------- element picker (train prev/next per site) ------------ */
@@ -496,7 +493,6 @@
       nav = findNav();
       reader.querySelectorAll('.fl-nav').forEach((n) => n.replaceWith(navBar()));
     }
-    syncPanel();
   }
 
   function onPickKey(e) {
@@ -530,7 +526,6 @@
     document.addEventListener('mousemove', onPickMove, true);
     document.addEventListener('click', onPickClick, true);
     document.addEventListener('keydown', onPickKey, true);
-    togglePanel(false);
   }
 
   function closeReaderKeepPrefs() {
@@ -542,165 +537,6 @@
     document.documentElement.classList.remove('flyleaf-on');
     window.scrollTo(0, savedScroll);
     sessionStorage.setItem('flyleaf-resume', '1');
-  }
-
-  /* ---------------- settings panel (Safari Reader structure) ------------- */
-
-  let fab = null;
-  let panel = null;
-
-  function buildPanel() {
-    panel.replaceChildren();
-
-    /* theme swatches */
-    panel.appendChild(el('div', { class: 'fl-label', text: 'Theme' }));
-    const sw = el('div', { class: 'fl-swatches' });
-    for (const [key, t] of Object.entries(THEMES)) {
-      const b = el('button', {
-        class: 'fl-swatch' + (prefs.theme === key ? ' fl-active' : ''),
-        title: key,
-        text: prefs.theme === key ? '✓' : '',
-        onclick: async () => {
-          prefs.theme = key;
-          applyPrefs();
-          await store.set('prefs', prefs);
-          buildPanel();
-        },
-      });
-      b.style.background = t.bg;
-      b.style.color = t.strong;
-      sw.appendChild(b);
-    }
-    panel.appendChild(sw);
-
-    /* font */
-    panel.appendChild(el('div', { class: 'fl-label', text: 'Font' }));
-    const sel = el('select');
-    for (const [key, f] of Object.entries(FONTS)) {
-      const o = el('option', { value: key, text: f.label });
-      if (prefs.font === key) o.selected = true;
-      sel.appendChild(o);
-    }
-    sel.addEventListener('change', async () => {
-      prefs.font = sel.value;
-      applyPrefs();
-      await store.set('prefs', prefs);
-    });
-    panel.appendChild(sel);
-
-    /* text size stepper */
-    panel.appendChild(el('div', { class: 'fl-label', text: 'Text size' }));
-    const bump = async (d) => {
-      prefs.size = Math.min(42, Math.max(14, prefs.size + d));
-      applyPrefs();
-      await store.set('prefs', prefs);
-      buildPanel();
-    };
-    panel.appendChild(
-      el('div', { class: 'fl-stepper' }, [
-        el('button', { text: 'A−', onclick: () => bump(-1) }),
-        el('div', { class: 'fl-val', text: prefs.size + 'px' }),
-        el('button', { text: 'A+', onclick: () => bump(1) }),
-      ])
-    );
-
-    /* width + line height */
-    panel.appendChild(el('div', { class: 'fl-label', text: 'Column width — ' + prefs.width + 'px' }));
-    const width = el('input', { type: 'range', min: 480, max: 1500, step: 20, value: prefs.width });
-    width.addEventListener('input', async () => {
-      prefs.width = parseInt(width.value, 10);
-      applyPrefs();
-      await store.set('prefs', prefs);
-    });
-    panel.appendChild(width);
-
-    panel.appendChild(el('div', { class: 'fl-label', text: 'Line height — ' + prefs.lh.toFixed(2) }));
-    const lh = el('input', { type: 'range', min: 1.4, max: 2.3, step: 0.05, value: prefs.lh });
-    lh.addEventListener('input', async () => {
-      prefs.lh = parseFloat(lh.value);
-      applyPrefs();
-      await store.set('prefs', prefs);
-    });
-    panel.appendChild(lh);
-
-    /* disclosure mode */
-    panel.appendChild(el('div', { class: 'fl-label', text: 'Reader replaces the page' }));
-    const seg = el('div', { class: 'fl-seg' });
-    for (const [key, label, hint] of [
-      ['modal', 'Modal', 'site kept beneath; instant exit'],
-      ['page', 'Page', 'site removed; exit reloads'],
-    ]) {
-      seg.appendChild(
-        el('button', {
-          class: prefs.mode === key ? 'fl-active' : '',
-          text: label,
-          title: hint,
-          onclick: async () => {
-            prefs.mode = key;
-            await store.set('prefs', prefs);
-            buildPanel();
-            toast(key === 'page' ? 'Page mode: original page is removed while reading' : 'Modal mode: original page kept beneath');
-          },
-        })
-      );
-    }
-    panel.appendChild(seg);
-
-    /* per-site navigation training */
-    panel.appendChild(el('div', { class: 'fl-label', text: 'Chapter links (this site)' }));
-    panel.appendChild(
-      el('div', { class: 'fl-row2' }, [
-        el('button', { class: 'fl-btn', text: 'Pick “previous”', onclick: () => startPicking('prev') }),
-        el('button', { class: 'fl-btn', text: 'Pick “next”', onclick: () => startPicking('next') }),
-        el('button', {
-          class: 'fl-btn', text: 'Reset', title: 'Forget trained links, use auto-detection',
-          onclick: async () => {
-            await saveSite({ prevSel: null, nextSel: null });
-            nav = findNav();
-            if (reader) reader.querySelectorAll('.fl-nav').forEach((n) => n.replaceWith(navBar()));
-            buildPanel();
-            toast('Back to auto-detection');
-          },
-        }),
-      ])
-    );
-    const cfg = siteCfg();
-    const pretty = (sel) => {
-      if (sel.startsWith('text:')) return 'link text “' + sel.slice(5) + '”';
-      return sel.length > 46 ? sel.slice(0, 30) + '…' + sel.slice(-13) : sel;
-    };
-    const status = [];
-    status.push(cfg.prevSel ? '← custom: ' + pretty(cfg.prevSel) : '← auto' + (nav.prev ? ' ✓' : ' (not found)'));
-    status.push(cfg.nextSel ? '→ custom: ' + pretty(cfg.nextSel) : '→ auto' + (nav.next ? ' ✓' : ' (not found)'));
-    panel.appendChild(el('div', { class: 'fl-nav-status', text: status.join('\n') }));
-
-    /* the Safari "Hide Reader" button */
-    panel.appendChild(
-      el('button', {
-        class: 'fl-primary',
-        text: reader ? 'Hide Reader' : 'Show Reader',
-        onclick: () => setEnabled(!reader),
-      })
-    );
-
-    panel.appendChild(
-      el('div', {
-        class: 'fl-hint',
-        html: '<kbd>←</kbd> <kbd>→</kbd> chapters · <kbd>−</kbd>/<kbd>+</kbd> size · <kbd>Esc</kbd> hide · <kbd>Alt+R</kbd> toggle',
-      })
-    );
-  }
-
-  function syncPanel() {
-    if (panel && panel.classList.contains('fl-open')) buildPanel();
-    if (panel && !panel.classList.contains('fl-open')) buildPanel();
-  }
-
-  function togglePanel(force) {
-    const open = force !== undefined ? force : !panel.classList.contains('fl-open');
-    if (open) buildPanel();
-    panel.classList.toggle('fl-open', open);
-    fab.classList.toggle('fl-open', open);
   }
 
   /* ---------------- keys ---------------- */
@@ -818,10 +654,61 @@
     if (tries < 40) setTimeout(() => waitForContent(fn, tries + 1), 300);
   }
 
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg && msg.type === 'flyleaf-toggle') {
-      if (reader) setEnabled(false);
-      else waitForContent(() => setEnabled(true));
+  function refreshNavUi() {
+    nav = findNav();
+    if (reader) reader.querySelectorAll('.fl-nav').forEach((n) => n.replaceWith(navBar()));
+  }
+
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if (!msg) return undefined;
+    switch (msg.type) {
+      case 'flyleaf-toggle':
+        if (reader) setEnabled(false);
+        else waitForContent(() => setEnabled(true));
+        break;
+      case 'flyleaf-status': {
+        const detected = findNav();
+        sendResponse({
+          active: !!reader,
+          host: HOST,
+          enabled: !!siteCfg().enabled,
+          prevSel: siteCfg().prevSel || null,
+          nextSel: siteCfg().nextSel || null,
+          prevFound: !!detected.prev,
+          nextFound: !!detected.next,
+        });
+        break;
+      }
+      case 'flyleaf-set-enabled':
+        if (msg.on) waitForContent(() => setEnabled(true));
+        else setEnabled(false);
+        sendResponse({ ok: true });
+        break;
+      case 'flyleaf-pick':
+        startPicking(msg.which === 'prev' ? 'prev' : 'next');
+        sendResponse({ ok: true });
+        break;
+      case 'flyleaf-reset-nav':
+        saveSite({ prevSel: null, nextSel: null }).then(() => {
+          refreshNavUi();
+          toast('Back to auto-detection');
+        });
+        sendResponse({ ok: true });
+        break;
+    }
+    return undefined;
+  });
+
+  /* the popup writes prefs to storage; apply them live here */
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'sync') return;
+    if (changes.prefs) {
+      prefs = { ...DEFAULT_PREFS, ...(changes.prefs.newValue || {}) };
+      applyPrefs();
+    }
+    if (changes.sites) {
+      sites = changes.sites.newValue || {};
+      if (reader) refreshNavUi();
     }
   });
 
@@ -830,24 +717,6 @@
     sites = await store.get('sites', {});
     applyPrefs();
     ensureStyle();
-
-    fab = el('button', { id: 'flyleaf-fab', type: 'button', title: 'Flyleaf (Alt+R)', text: 'Aa' });
-    panel = el('div', { id: 'flyleaf-panel' });
-    fab.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePanel();
-    });
-    document.addEventListener(
-      'click',
-      (e) => {
-        if (panel.classList.contains('fl-open') && !panel.contains(e.target) && e.target !== fab) {
-          togglePanel(false);
-        }
-      },
-      true
-    );
-    document.documentElement.appendChild(fab);
-    document.documentElement.appendChild(panel);
 
     /* resume a pick that needed a raw page (page mode) */
     const pendingPick = sessionStorage.getItem('flyleaf-pick');

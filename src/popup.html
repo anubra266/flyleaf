@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {
+    width: 300px; margin: 0; padding: 16px;
+    background: #0c0c0c; color: #ededed;
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  .fl-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: #707070; margin: 14px 0 8px;
+  }
+  .fl-label:first-child { margin-top: 0; }
+
+  .fl-swatches { display: flex; gap: 10px; }
+  .fl-swatch {
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    border: 2px solid #2e2e2e; padding: 0; font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 120ms ease;
+  }
+  .fl-swatch.fl-active { border-color: #ededed; }
+
+  select {
+    width: 100%; background: #000; border: 1px solid #1f1f1f; border-radius: 8px;
+    color: #d4d4d4; font-size: 13px; padding: 8px 10px;
+  }
+
+  .fl-stepper { display: flex; gap: 4px; }
+  .fl-stepper button {
+    flex: 1; background: #000; border: 1px solid #1f1f1f; border-radius: 8px;
+    color: #d4d4d4; cursor: pointer; padding: 8px 0; font-size: 13px;
+  }
+  .fl-stepper button:hover { border-color: #2e2e2e; color: #ededed; }
+  .fl-val {
+    flex: 1.2; display: flex; align-items: center; justify-content: center;
+    font: 12px ui-monospace, Menlo, monospace; color: #707070;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 3px;
+    background: #2e2e2e; border-radius: 999px; outline: none;
+    margin: 6px 0 0; padding: 0; cursor: pointer; display: block;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: #ededed; border: 0; cursor: pointer;
+  }
+
+  .fl-seg { display: flex; gap: 4px; background: #000; border: 1px solid #1f1f1f; border-radius: 8px; padding: 3px; }
+  .fl-seg button {
+    flex: 1; background: transparent; border: 0; border-radius: 6px;
+    color: #707070; font-size: 12px; font-weight: 500; padding: 6px 4px; cursor: pointer;
+  }
+  .fl-seg button.fl-active { background: #1a1a1a; color: #ededed; }
+
+  .fl-row2 { display: flex; gap: 8px; }
+  .fl-btn {
+    flex: 1; background: #000; border: 1px solid #1f1f1f; border-radius: 8px;
+    color: #a1a1a1; font-size: 12px; padding: 8px 6px; cursor: pointer;
+  }
+  .fl-btn:hover { border-color: #2e2e2e; color: #ededed; }
+  .fl-nav-status {
+    font-size: 11.5px; color: #707070; margin-top: 6px; line-height: 1.6;
+    white-space: pre-line; word-break: break-all;
+  }
+
+  .fl-primary {
+    width: 100%; margin-top: 16px; background: #ededed; border: 0; border-radius: 8px;
+    color: #000; font-size: 13px; font-weight: 600; padding: 10px 0; cursor: pointer;
+  }
+  .fl-primary:disabled { opacity: .4; cursor: default; }
+
+  .fl-hint {
+    margin-top: 12px; padding-top: 10px; border-top: 1px solid #1f1f1f;
+    font-size: 11px; color: #707070; line-height: 1.7;
+  }
+  kbd {
+    background: #000; border: 1px solid #2e2e2e; border-radius: 4px;
+    padding: 1px 5px; font: 10px ui-monospace, Menlo, monospace; color: #a1a1a1;
+  }
+  .fl-host { font-size: 11.5px; color: #707070; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
