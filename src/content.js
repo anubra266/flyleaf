@@ -30,7 +30,7 @@
   /* Safari Reader's paper feel: a darker BACKDROP behind a raised,
      rounded SHEET (bg) that carries the text. edge = the sheet's ring. */
   const THEMES = {
-    light: { backdrop: '#ececec', bg: '#ffffff', edge: 'rgba(0,0,0,0.08)', text: '#333333', strong: '#111111', muted: '#666666', dim: '#999999', border: '#e4e4e4', borderHi: '#cccccc', chip: '#f5f5f5', progress: '#999999' },
+    light: { backdrop: '#eeeeee', bg: '#ffffff', edge: 'rgba(0,0,0,0.08)', text: '#333333', strong: '#111111', muted: '#666666', dim: '#999999', border: '#e4e4e4', borderHi: '#cccccc', chip: '#f5f5f5', progress: '#999999' },
     sepia: { backdrop: '#e7ddc4', bg: '#f6efdd', edge: 'rgba(120,100,60,0.18)', text: '#4a4030', strong: '#2f2818', muted: '#7a6f58', dim: '#9c9077', border: '#e0d5bb', borderHi: '#c9bd9f', chip: '#ede3cc', progress: '#9c9077' },
     gray: { backdrop: '#313135', bg: '#4b4b50', edge: 'rgba(255,255,255,0.06)', text: '#d6d6d8', strong: '#f2f2f3', muted: '#a9a9ad', dim: '#8b8b90', border: '#5a5a60', borderHi: '#6d6d73', chip: '#434347', progress: '#a9a9ad' },
     midnight: { backdrop: '#000000', bg: '#0b0b0c', edge: 'rgba(255,255,255,0.06)', text: '#d4d4d4', strong: '#ededed', muted: '#a1a1a1', dim: '#707070', border: '#1f1f1f', borderHi: '#2e2e2e', chip: '#131314', progress: '#ffffff' },

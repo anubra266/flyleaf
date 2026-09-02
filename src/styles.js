@@ -19,7 +19,9 @@ const FLYLEAF_CSS = `
   font-family: var(--fl-font);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  padding: 0 44px;
+  /* Safari's exact geometry: a thin backdrop strip above the paper
+     (~8px) and ~45px side margins; the paper runs off the bottom. */
+  padding: 8px 45px 0;
 }
 #flyleaf-reader * { all: revert; box-sizing: border-box; font-family: inherit; }
 
@@ -30,10 +32,11 @@ const FLYLEAF_CSS = `
    full height, side margins only. */
 #flyleaf-sheet {
   background: var(--fl-bg);
-  min-height: 100vh;
+  min-height: calc(100vh - 8px);
 }
 @media (max-width: 700px) {
-  #flyleaf-reader { padding: 0 8px; }
+  #flyleaf-reader { padding: 6px 10px 0; }
+  #flyleaf-sheet { min-height: calc(100vh - 6px); }
 }
 
 #flyleaf-page {
