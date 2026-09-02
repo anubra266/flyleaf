@@ -142,16 +142,35 @@ function render() {
         el('button', { class: 'fl-btn', text: 'Reset', title: 'Forget trained links, use auto-detection', onclick: async () => { await send({ type: 'flyleaf-reset-nav' }); refreshStatus(); } }),
       ])
     );
-    const pretty = (sel) => {
-      if (!sel) return null;
-      if (sel.startsWith('text:')) return 'link text “' + sel.slice(5) + '”';
-      return sel.length > 46 ? sel.slice(0, 30) + '…' + sel.slice(-13) : sel;
+    /* summarize a saved locator to one short line; full value on hover */
+    const summarize = (sel) => {
+      if (sel.startsWith('text:')) return '“' + sel.slice(5).slice(0, 22) + '”';
+      if (sel[0] === '#') return sel.split(/[ >]/)[0];               // id
+      const relm = sel.match(/\[rel="?([^"\]]+)"?\]/);
+      if (relm) return 'rel=' + relm[1];
+      if (/:nth-child|^body /.test(sel)) return 'by position';        // path
+      const m = sel.match(/^([a-z]*)\.(.+)$/i);                       // tag.classes
+      if (m) {
+        const cls = m[2].split('.');
+        return (m[1] || '') + '.' + cls[0] + (cls.length > 1 ? ' +' + (cls.length - 1) : '');
+      }
+      return sel.length > 24 ? sel.slice(0, 22) + '…' : sel;
     };
-    const lines = [
-      status.prevSel ? '← custom: ' + pretty(status.prevSel) : '← auto' + (status.prevFound ? ' ✓' : ' (not found)'),
-      status.nextSel ? '→ custom: ' + pretty(status.nextSel) : '→ auto' + (status.nextFound ? ' ✓' : ' (not found)'),
-    ];
-    app.appendChild(el('div', { class: 'fl-nav-status', text: lines.join('\n') }));
+    const line = (arrow, sel, found) => {
+      const div = el('div', { class: 'fl-nav-line' });
+      if (sel) {
+        div.textContent = arrow + ' custom: ' + summarize(sel);
+        div.title = sel;                                              // full on hover
+      } else {
+        div.textContent = arrow + ' auto' + (found ? ' ✓' : ' (not found)');
+      }
+      return div;
+    };
+    const status_ = el('div', { class: 'fl-nav-status' }, [
+      line('←', status.prevSel, status.prevFound),
+      line('→', status.nextSel, status.nextFound),
+    ]);
+    app.appendChild(status_);
   }
 
   /* primary action */
