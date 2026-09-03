@@ -89,6 +89,32 @@
     await store.set('sites', sites);
   }
 
+  /* ---------------- reading-page patterns ----------------
+     Auto-open is gated on a glob over the URL path, not on "does this
+     look like an article". The path is known at document_start, so the
+     curtain only drops on matching pages — the site's home / index page
+     loads normally, with no blank themed flash. Empty pattern = whole
+     site (back-compat with the old per-host on/off). */
+  function globToRe(glob) {
+    const esc = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+    return new RegExp('^' + esc + '$', 'i');
+  }
+  function urlMatches(pattern) {
+    if (!pattern) return true;
+    try {
+      return globToRe(pattern).test(location.pathname);
+    } catch {
+      return true;
+    }
+  }
+  /* seed a pattern from the current chapter URL: wildcard every run of
+     digits so sibling chapters match while the home page does not.
+     e.g. /novel/some-title/chapter-84  ->  /novel/some-title/chapter-* */
+  function seedPattern() {
+    const p = location.pathname.replace(/\d+/g, '*').replace(/\*{2,}/g, '*');
+    return p || '/*';
+  }
+
   /* ---------------- tiny dom helpers ---------------- */
 
   function el(tag, props = {}, children = []) {
@@ -353,7 +379,7 @@
     reader = el('div', { id: 'flyleaf-reader' }, [
       el('div', { id: 'flyleaf-sheet' }, [
       el('div', { id: 'flyleaf-page' }, [
-        el('p', { class: 'fl-site', text: HOST }),
+        el('a', { class: 'fl-site', href: location.origin + '/', title: 'Go to ' + HOST, text: HOST }),
         el('h1', { class: 'fl-title', text: title }),
         navBar(),
         el('div', { id: 'flyleaf-body' }, [article.node]),
@@ -399,7 +425,11 @@
   async function setEnabled(on) {
     if (on) {
       if (!openReader()) return;
-      await saveSite({ enabled: true });
+      /* first time enabling this site: remember which kind of page this
+         is, so reload / auto-open fires on chapters but not the home. */
+      const patch = { enabled: true };
+      if (siteCfg().pattern === undefined) patch.pattern = seedPattern();
+      await saveSite(patch);
     } else {
       await saveSite({ enabled: false });
       try { sessionStorage.removeItem('flyleaf-active'); } catch (e) {}
@@ -736,6 +766,10 @@
           nextSel: siteCfg().nextSel || null,
           prevFound: !!detected.prev,
           nextFound: !!detected.next,
+          pattern: siteCfg().pattern || '',
+          path: location.pathname,
+          suggest: seedPattern(),
+          patternMatches: urlMatches(siteCfg().pattern),
         });
         break;
       }
@@ -746,6 +780,10 @@
         break;
       case 'flyleaf-pick':
         startPicking(msg.which === 'prev' ? 'prev' : 'next');
+        sendResponse({ ok: true });
+        break;
+      case 'flyleaf-set-pattern':
+        saveSite({ pattern: typeof msg.pattern === 'string' ? msg.pattern.trim() : '' });
         sendResponse({ ok: true });
         break;
       case 'flyleaf-reset-nav':
@@ -791,8 +829,15 @@
   }
 
   function shouldAutoOpen() {
-    if (siteCfg().enabled) return true;
-    try { return sessionStorage.getItem('flyleaf-active') === '1'; } catch (e) { return false; }
+    const cfg = siteCfg();
+    if (cfg.enabled && urlMatches(cfg.pattern)) return true;
+    /* in-tab continuation (next/prev, reload) — but still only on pages
+       that match the site's reading pattern, so navigating to the home
+       page inside the same tab drops the reader instead of blanking it. */
+    try {
+      if (sessionStorage.getItem('flyleaf-active') === '1') return urlMatches(cfg.pattern);
+    } catch (e) {}
+    return false;
   }
 
   /* Runs at document_start: storage resolves in a few ms, typically

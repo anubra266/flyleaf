@@ -30,6 +30,18 @@ let prefs = { ...DEFAULT_PREFS };
 let status = null; /* from the content script; null = not available here */
 let tabId = null;
 
+/* same glob->regex the content script uses, so the popup can show a live
+   match indicator as you type without a round-trip */
+function pathMatches(pattern, path) {
+  if (!pattern) return true;
+  try {
+    const esc = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+    return new RegExp('^' + esc + '$', 'i').test(path);
+  } catch {
+    return true;
+  }
+}
+
 function el(tag, props = {}, children = []) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(props)) {
@@ -132,8 +144,53 @@ function render() {
   }
   app.appendChild(seg);
 
-  /* per-site nav — only when a content script answered */
+  /* per-site settings — only when a content script answered */
   if (status) {
+    /* auto-open scope: which pages of this site open in reader */
+    app.appendChild(el('div', { class: 'fl-label', text: 'Auto-open on — ' + status.host }));
+    const patInput = el('input', {
+      type: 'text', class: 'fl-input',
+      value: status.pattern || '',
+      placeholder: 'whole site — e.g. /novel/*/chapter-*',
+    });
+    const patHint = el('div', { class: 'fl-nav-line' });
+    const paintHint = () => {
+      const p = patInput.value.trim();
+      if (!p) {
+        patHint.textContent = 'Opens on every page of this site.';
+      } else {
+        patHint.textContent =
+          (pathMatches(p, status.path) ? 'This page matches ✓' : 'This page won’t auto-open ✗') +
+          '  ·  ' + status.path;
+      }
+      patHint.title = status.path;
+    };
+    let saveTimer;
+    const savePattern = (v) => send({ type: 'flyleaf-set-pattern', pattern: v });
+    patInput.addEventListener('input', () => {
+      paintHint();
+      clearTimeout(saveTimer);
+      const v = patInput.value.trim();
+      saveTimer = setTimeout(() => savePattern(v), 350);
+    });
+    paintHint();
+    app.appendChild(patInput);
+    app.appendChild(patHint);
+    app.appendChild(
+      el('div', { class: 'fl-row2' }, [
+        el('button', {
+          class: 'fl-btn', text: 'Use this page',
+          title: 'Auto-open on pages like the one you’re reading now',
+          onclick: async () => { patInput.value = status.suggest || status.path; paintHint(); await savePattern(patInput.value); },
+        }),
+        el('button', {
+          class: 'fl-btn', text: 'Whole site',
+          title: 'Auto-open on every page of this site',
+          onclick: async () => { patInput.value = ''; paintHint(); await savePattern(''); },
+        }),
+      ])
+    );
+
     app.appendChild(el('div', { class: 'fl-label', text: 'Chapter links — ' + status.host }));
     app.appendChild(
       el('div', { class: 'fl-row2' }, [

@@ -61,9 +61,13 @@ const FLYLEAF_CSS = `
 }
 
 #flyleaf-reader .fl-site {
+  display: inline-block;
   font-size: .65em; font-weight: 500; letter-spacing: .05em;
   text-transform: uppercase; color: var(--fl-dim); margin: 0 0 .8em;
+  text-decoration: none; border: 0; cursor: pointer;
+  transition: color 120ms ease;
 }
+#flyleaf-reader a.fl-site:hover { color: var(--fl-strong); }
 #flyleaf-reader .fl-title {
   font-size: 2em; font-weight: 700;
   letter-spacing: -.03em; line-height: 1.15; color: var(--fl-strong);
