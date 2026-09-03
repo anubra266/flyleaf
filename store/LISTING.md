@@ -156,18 +156,22 @@ at a `chromewebstore.google.com/detail/...` URL.
 
 ## Shipping a future update
 
-1. Bump `"version"` in `manifest.json` (e.g. `0.1.0` → `0.1.1`).
-2. Re-run the packaging command (below).
-3. Dashboard → the Flyleaf item → **Package** → **Upload new package** →
-   **Submit for review**.
-
-Rebuild the zip:
 ```
 cd /Users/abraham/Developer/oss/flyleaf
-find . -name .DS_Store -delete
-rm -f dist/flyleaf-*.zip
-zip -r -X dist/flyleaf-$(node -p "require('./manifest.json').version").zip manifest.json src vendor icons -x '*.DS_Store'
+npm run release        # bump patch version (manifest + package) and repackage
 ```
+
+Then: Dashboard → the Flyleaf item → **Package** → **Upload new package**
+→ **Submit for review**.
+
+Scripts (in `package.json`):
+
+| Command | Does |
+| --- | --- |
+| `npm run build` | Zip the extension to `dist/flyleaf-<version>.zip` |
+| `npm run bump` | Bump patch version in `manifest.json` + `package.json` |
+| `npm run bump:minor` / `bump:major` | Bump minor / major |
+| `npm run release` | `bump` (patch) then `build` |
 
 ---
 
