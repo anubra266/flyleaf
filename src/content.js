@@ -427,7 +427,45 @@
     return true;
   }
 
+  /* Which paragraph sits at the top of the reader right now, as a text
+     signature — used to scroll the original page to the same place when
+     you leave modal mode. */
+  function readerTopSignature() {
+    const blocks = document.querySelectorAll(
+      '#flyleaf-body p, #flyleaf-body h1, #flyleaf-body h2, #flyleaf-body h3, #flyleaf-body h4, #flyleaf-body li, #flyleaf-body blockquote'
+    );
+    let top = null;
+    for (const b of blocks) {
+      const r = b.getBoundingClientRect();
+      if (r.height === 0) continue;
+      if (r.bottom >= 60) { top = b; break; } /* first block reaching the top fold */
+    }
+    if (!top) top = blocks[0];
+    if (!top) return null;
+    const txt = (top.textContent || '').replace(/\s+/g, ' ').trim();
+    return txt.length >= 12 ? txt : null;
+  }
+
+  /* Find the element in the ORIGINAL (now-visible) page whose text starts
+     the same paragraph, so we can line the site up with what you read. */
+  function findInOriginal(sig) {
+    const needle = sig.slice(0, 60).toLowerCase();
+    if (needle.length < 8) return null;
+    const cands = document.body
+      ? document.body.querySelectorAll('p, h1, h2, h3, h4, li, blockquote')
+      : [];
+    for (const node of cands) {
+      if (node.closest('[id^="flyleaf-"]')) continue;
+      const t = (node.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      if (t && t.includes(needle)) return node;
+    }
+    return null;
+  }
+
   function closeReader() {
+    /* capture reading position while the reader is still laid out */
+    const anchor = reader && !bodyWasRemoved ? readerTopSignature() : null;
+
     if (reader) reader.remove();
     if (progress) progress.remove();
     reader = null;
@@ -437,7 +475,18 @@
       location.reload();
       return;
     }
-    window.scrollTo(0, savedScroll);
+
+    /* modal: the body is visible again — scroll it to the paragraph we
+       were reading (getBoundingClientRect forces the reflow we need),
+       falling back to the pre-reading position if we can't find it. */
+    let y = savedScroll;
+    if (anchor) {
+      const target = findInOriginal(anchor);
+      if (target) {
+        y = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - 80);
+      }
+    }
+    window.scrollTo(0, y);
   }
 
   async function setEnabled(on) {
