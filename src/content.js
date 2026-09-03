@@ -99,20 +99,38 @@
     const esc = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
     return new RegExp('^' + esc + '$', 'i');
   }
+  const normPath = (p) => p.replace(/\/+$/, '') || '/';
+  const splitPatterns = (s) => String(s).split(',').map((x) => x.trim()).filter(Boolean);
+  /* pattern is a comma-separated list; the page auto-opens if it matches
+     ANY entry. Entries missing a leading "/" get one, so "novel/*" works. */
   function urlMatches(pattern) {
     if (!pattern) return true;
-    try {
-      return globToRe(pattern).test(location.pathname);
-    } catch {
-      return true;
-    }
+    const path = normPath(location.pathname);
+    return splitPatterns(pattern).some((raw) => {
+      let pat = normPath(raw);
+      if (pat[0] !== '/' && pat[0] !== '*') pat = '/' + pat;
+      try {
+        return globToRe(pat).test(path);
+      } catch {
+        return true;
+      }
+    });
   }
-  /* seed a pattern from the current chapter URL: wildcard every run of
-     digits so sibling chapters match while the home page does not.
-     e.g. /novel/some-title/chapter-84  ->  /novel/some-title/chapter-* */
+  /* Seed a pattern from the current chapter URL that generalises across
+     the WHOLE site, not just the novel you're on: wildcard the chapter
+     number AND the story-title slug, but keep the section words
+     (/novel, /read, …). So enabling on one novel's chapter also
+     auto-opens every other novel's chapters on that site. A chapter at
+     "/novel/some-title/chapter-84" seeds the glob "/novel/[*]/chapter-[*]". */
   function seedPattern() {
-    const p = location.pathname.replace(/\d+/g, '*').replace(/\*{2,}/g, '*');
-    return p || '/*';
+    const segs = normPath(location.pathname).split('/');
+    const out = segs.map((seg, i) => {
+      if (!seg) return seg;                                  /* leading '' */
+      if (/\d/.test(seg)) return seg.replace(/\d+/g, '*');   /* chapter-84 -> chapter-*, 12345 -> * */
+      if (i > 1 && seg.includes('-')) return '*';            /* deeper title slug -> * */
+      return seg;                                            /* section keyword -> keep */
+    });
+    return out.join('/').replace(/\*{2,}/g, '*') || '/*';
   }
 
   /* ---------------- tiny dom helpers ---------------- */

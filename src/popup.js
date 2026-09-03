@@ -30,16 +30,27 @@ let prefs = { ...DEFAULT_PREFS };
 let status = null; /* from the content script; null = not available here */
 let tabId = null;
 
-/* same glob->regex the content script uses, so the popup can show a live
-   match indicator as you type without a round-trip */
+/* same matching the content script uses, so the popup can show a live
+   indicator as you type without a round-trip. pattern is a comma-
+   separated list; a page matches if ANY entry matches. */
 function pathMatches(pattern, path) {
   if (!pattern) return true;
-  try {
-    const esc = pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
-    return new RegExp('^' + esc + '$', 'i').test(path);
-  } catch {
-    return true;
-  }
+  const np = (p) => p.replace(/\/+$/, '') || '/';
+  const target = np(path);
+  return String(pattern)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .some((raw) => {
+      let pat = np(raw);
+      if (pat[0] !== '/' && pat[0] !== '*') pat = '/' + pat;
+      try {
+        const esc = pat.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+        return new RegExp('^' + esc + '$', 'i').test(target);
+      } catch {
+        return true;
+      }
+    });
 }
 
 function el(tag, props = {}, children = []) {
@@ -151,7 +162,8 @@ function render() {
     const patInput = el('input', {
       type: 'text', class: 'fl-input',
       value: status.pattern || '',
-      placeholder: 'whole site — e.g. /novel/*/chapter-*',
+      placeholder: 'whole site — e.g. /novel/*/chapter-*, /read/*',
+      title: 'Comma-separate multiple patterns; * is a wildcard',
     });
     const patHint = el('div', { class: 'fl-nav-line' });
     const paintHint = () => {
