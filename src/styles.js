@@ -60,14 +60,59 @@ const FLYLEAF_CSS = `
   letter-spacing: 0.003em;
 }
 
-#flyleaf-reader .fl-site {
-  display: inline-block;
-  font-size: .65em; font-weight: 500; letter-spacing: .05em;
-  text-transform: uppercase; color: var(--fl-dim); margin: 0 0 .8em;
-  text-decoration: none; border: 0; cursor: pointer;
+/* header: borderless 2x2 —  domain | title  /  chapter | prev-next */
+#flyleaf-reader #flyleaf-head {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  grid-template-areas: "site title" "chapter nav";
+  align-items: center;
+  gap: 14px 28px;
+  margin: 0 0 2.2em;
+}
+#flyleaf-reader .fl-cell {
+  display: flex; align-items: center; min-width: 0;
+  padding: 0; text-decoration: none; color: inherit;
+}
+#flyleaf-reader .fl-c-site { grid-area: site; }
+#flyleaf-reader .fl-c-title { grid-area: title; justify-content: flex-end; }
+#flyleaf-reader .fl-c-chapter { grid-area: chapter; }
+#flyleaf-reader .fl-c-nav { grid-area: nav; justify-content: flex-end; }
+
+#flyleaf-reader .fl-cell-value {
+  font-size: .7em; font-weight: 600; letter-spacing: .04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#flyleaf-reader .fl-c-site .fl-cell-value {
+  text-transform: uppercase; color: var(--fl-dim); transition: color 120ms ease;
+}
+#flyleaf-reader a.fl-c-site:hover .fl-cell-value { color: var(--fl-strong); }
+#flyleaf-reader .fl-c-chapter .fl-cell-value { color: var(--fl-muted); }
+
+#flyleaf-reader .fl-c-title .fl-title {
+  font-size: .92em; font-weight: 600; letter-spacing: -.01em; line-height: 1.35;
+  color: var(--fl-strong); margin: 0; text-align: right;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* header nav is quiet text, matching the metadata — not a button */
+#flyleaf-reader .fl-c-nav .fl-nav { margin: 0; gap: 20px; justify-content: flex-end; }
+#flyleaf-reader .fl-c-nav .fl-pill {
+  background: transparent; border: 0; border-radius: 0; padding: 0;
+  font-size: .7em; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--fl-muted);
   transition: color 120ms ease;
 }
-#flyleaf-reader a.fl-site:hover { color: var(--fl-strong); }
+#flyleaf-reader .fl-c-nav a.fl-pill:hover { color: var(--fl-strong); }
+#flyleaf-reader .fl-c-nav span.fl-pill { color: var(--fl-dim); opacity: .5; }
+
+@media (max-width: 640px) {
+  #flyleaf-reader #flyleaf-head {
+    grid-template-columns: 1fr;
+    grid-template-areas: "site nav" "title title" "chapter chapter";
+    gap: 10px 16px;
+  }
+  #flyleaf-reader .fl-c-title { justify-content: flex-start; }
+  #flyleaf-reader .fl-c-title .fl-title { text-align: left; }
+}
 #flyleaf-reader .fl-title {
   font-size: 2em; font-weight: 700;
   letter-spacing: -.03em; line-height: 1.15; color: var(--fl-strong);

@@ -367,6 +367,45 @@
     ]);
   }
 
+  /* Pull a "Chapter 178" out of a "Chapter 178 - Real Title" heading so
+     the number can live in the header grid and the title reads clean. */
+  function splitChapter(full) {
+    const s = (full || '').trim();
+    const WORD = '(?:chapter|chap|ch|episode|ep|part|volume|vol)';
+    const only = s.match(new RegExp('^' + WORD + '\\.?\\s*([0-9]+(?:\\.[0-9]+)?)$', 'i'));
+    if (only) return { chapter: only[1], title: '' };
+    const m = s.match(new RegExp('^(?:' + WORD + '\\.?\\s*)?([0-9]+(?:\\.[0-9]+)?)\\s*[-:.)\\u2013\\u2014]+\\s*(.+)$', 'i'));
+    if (m && m[2]) return { chapter: m[1], title: m[2].trim() };
+    return { chapter: null, title: s };
+  }
+
+  /* header 2x2 grid:
+       domain (top-left)      title    (top-right)
+       chapter (bottom-left)  prev/next (bottom-right) */
+  function headGrid(chapter, title) {
+    const pill = (url, html) => {
+      const n = el(url ? 'a' : 'span', { class: 'fl-pill', html });
+      if (url) n.setAttribute('href', url);
+      return n;
+    };
+    const site = el('a', { class: 'fl-cell fl-c-site', href: location.origin + '/', title: 'Go to ' + HOST }, [
+      el('span', { class: 'fl-cell-value', text: HOST }),
+    ]);
+    const titleCell = el('div', { class: 'fl-cell fl-c-title' }, [
+      el('h1', { class: 'fl-title', text: title || (chapter ? 'Chapter ' + chapter : HOST) }),
+    ]);
+    const chapterCell = el('div', { class: 'fl-cell fl-c-chapter' }, [
+      el('span', { class: 'fl-cell-value', text: chapter ? 'Chapter ' + chapter : '—' }),
+    ]);
+    const navCell = el('div', { class: 'fl-cell fl-c-nav' }, [
+      el('div', { class: 'fl-nav' }, [
+        pill(nav.prev, '&larr;&nbsp; Previous'),
+        pill(nav.next, 'Next &nbsp;&rarr;'),
+      ]),
+    ]);
+    return el('div', { id: 'flyleaf-head' }, [site, titleCell, chapterCell, navCell]);
+  }
+
   function ensureStyle() {
     if (!document.getElementById('flyleaf-style')) {
       const style = el('style', { id: 'flyleaf-style' });
@@ -389,20 +428,19 @@
     ensureStyle();
 
     const h1 = document.querySelector('h1');
-    const title =
+    const fullTitle =
       article.title ||
       (h1 && h1.textContent.trim()) ||
       document.title.split(/[|\-–—]/)[0].trim();
+    const parts = splitChapter(fullTitle);
 
     reader = el('div', { id: 'flyleaf-reader' }, [
       el('div', { id: 'flyleaf-sheet' }, [
-      el('div', { id: 'flyleaf-page' }, [
-        el('a', { class: 'fl-site', href: location.origin + '/', title: 'Go to ' + HOST, text: HOST }),
-        el('h1', { class: 'fl-title', text: title }),
-        navBar(),
-        el('div', { id: 'flyleaf-body' }, [article.node]),
-        navBar(),
-      ]),
+        el('div', { id: 'flyleaf-page' }, [
+          headGrid(parts.chapter, parts.title),
+          el('div', { id: 'flyleaf-body' }, [article.node]),
+          navBar(),
+        ]),
       ]),
     ]);
     progress = el('div', { id: 'flyleaf-progress' });
