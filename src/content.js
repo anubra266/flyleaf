@@ -377,6 +377,12 @@
 
   function openReader(quiet) {
     if (reader) return true;
+    /* where were you on the site? (modal, visible, actually scrolled) —
+       so the reader can open on the same paragraph, not always the top */
+    const openAnchor =
+      prefs.mode !== 'page' && !curtain && window.pageYOffset > 40 && document.body
+        ? topSignature(document.body.querySelectorAll(BLOCK_SEL))
+        : null;
     const article = extract();
     if (!article || !article.node.textContent.trim()) {
       if (!quiet) {
@@ -421,72 +427,119 @@
     /* modal mode: body is only hidden by the .flyleaf-on rule */
 
     applyPrefs();
-    window.scrollTo(0, 0);
+    let synced = false;
+    if (openAnchor) {
+      const target = firstWithText(document.querySelectorAll(READER_BLOCK_SEL), openAnchor);
+      if (target) { scrollDocToNode(target); synced = true; }
+    }
+    if (!synced) window.scrollTo(0, 0);
     curtainOff();
     try { sessionStorage.setItem('flyleaf-active', '1'); } catch (e) {}
     return true;
   }
 
-  /* Which paragraph sits at the top of the reader right now, as a text
-     signature — used to scroll the original page to the same place when
-     you leave modal mode. */
-  function readerTopSignature() {
-    const blocks = document.querySelectorAll(
-      '#flyleaf-body p, #flyleaf-body h1, #flyleaf-body h2, #flyleaf-body h3, #flyleaf-body h4, #flyleaf-body li, #flyleaf-body blockquote'
-    );
+  /* ---- scroll sync between reader and page (both directions) ----
+     Matched by the text of the paragraph at the top of the viewport:
+     opening lands the reader on what you were reading on the site, and
+     leaving lands the site on what you were reading in the reader. */
+  const BLOCK_SEL = 'p, h1, h2, h3, h4, li, blockquote';
+  const READER_BLOCK_SEL = BLOCK_SEL.split(', ').map((s) => '#flyleaf-body ' + s).join(', ');
+  const sigOf = (node) => {
+    const t = (node.textContent || '').replace(/\s+/g, ' ').trim();
+    return t.length >= 12 ? t : null;
+  };
+  /* the block currently sitting at the top of the viewport */
+  function topSignature(nodes) {
     let top = null;
-    for (const b of blocks) {
+    for (const b of nodes) {
       const r = b.getBoundingClientRect();
       if (r.height === 0) continue;
-      if (r.bottom >= 60) { top = b; break; } /* first block reaching the top fold */
+      if (r.bottom >= 60) { top = b; break; }
     }
-    if (!top) top = blocks[0];
-    if (!top) return null;
-    const txt = (top.textContent || '').replace(/\s+/g, ' ').trim();
-    return txt.length >= 12 ? txt : null;
+    if (!top) top = nodes[0];
+    return top ? sigOf(top) : null;
   }
-
-  /* Find the element in the ORIGINAL (now-visible) page whose text starts
-     the same paragraph, so we can line the site up with what you read. */
-  function findInOriginal(sig) {
+  /* the element whose paragraph starts with the same text */
+  function firstWithText(nodes, sig) {
     const needle = sig.slice(0, 60).toLowerCase();
     if (needle.length < 8) return null;
-    const cands = document.body
-      ? document.body.querySelectorAll('p, h1, h2, h3, h4, li, blockquote')
-      : [];
-    for (const node of cands) {
-      if (node.closest('[id^="flyleaf-"]')) continue;
+    for (const node of nodes) {
+      if (node.closest && node.closest('[id^="flyleaf-"]')) continue;
       const t = (node.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
       if (t && t.includes(needle)) return node;
     }
     return null;
   }
+  const scrollDocToNode = (node) =>
+    window.scrollTo(0, Math.max(0, node.getBoundingClientRect().top + window.pageYOffset - 80));
+
+  /* the Safari "close" motion: the reader slides down out of view,
+     revealing the page underneath, then is removed. */
+  function dropAway(node, done) {
+    let reduce = false;
+    try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    if (reduce) {
+      node.remove();
+      if (done) done();
+      return;
+    }
+    requestAnimationFrame(() => {
+      node.style.transition = 'transform .36s cubic-bezier(.32,.72,.35,1), opacity .36s ease';
+      node.style.transform = (node.style.transform ? node.style.transform + ' ' : '') + 'translateY(100%)';
+      node.style.opacity = '0.7';
+    });
+    setTimeout(() => {
+      node.remove();
+      if (done) done();
+    }, 400);
+  }
 
   function closeReader() {
-    /* capture reading position while the reader is still laid out */
-    const anchor = reader && !bodyWasRemoved ? readerTopSignature() : null;
-
-    if (reader) reader.remove();
-    if (progress) progress.remove();
-    reader = null;
-    progress = null;
-    document.documentElement.classList.remove('flyleaf-on');
+    if (!reader) {
+      if (progress) progress.remove();
+      progress = null;
+      document.documentElement.classList.remove('flyleaf-on');
+      return;
+    }
+    /* page mode destroyed the site DOM — drop the reader, then reload */
     if (bodyWasRemoved) {
-      location.reload();
+      const gone = reader;
+      reader = null;
+      if (progress) progress.remove();
+      progress = null;
+      dropAway(gone, () => location.reload());
       return;
     }
 
-    /* modal: the body is visible again — scroll it to the paragraph we
-       were reading (getBoundingClientRect forces the reflow we need),
-       falling back to the pre-reading position if we can't find it. */
+    /* modal: capture reading position, freeze the reader as a fixed
+       overlay showing the same content, reveal + line up the original
+       page underneath, then let the reader fall away over it. */
+    const anchor = topSignature(document.querySelectorAll(READER_BLOCK_SEL));
+    const scrolledBy = window.pageYOffset;
+    const sheet = reader.querySelector('#flyleaf-sheet');
+    reader.style.position = 'fixed';
+    reader.style.left = '0';
+    reader.style.right = '0';
+    reader.style.top = '0';
+    reader.style.height = '100vh';
+    reader.style.margin = '0';
+    reader.style.overflow = 'hidden';
+    reader.style.zIndex = '2147483646';
+    if (sheet) sheet.style.transform = 'translateY(' + -scrolledBy + 'px)';
+
+    document.documentElement.classList.remove('flyleaf-on');
+    if (progress) progress.remove();
     let y = savedScroll;
     if (anchor) {
-      const target = findInOriginal(anchor);
-      if (target) {
-        y = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - 80);
-      }
+      const target = firstWithText(document.body.querySelectorAll(BLOCK_SEL), anchor);
+      if (target) y = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - 80);
     }
     window.scrollTo(0, y);
+
+    const gone = reader;
+    reader = null;
+    progress = null;
+    dropAway(gone);
   }
 
   async function setEnabled(on) {
