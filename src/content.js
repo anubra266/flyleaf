@@ -377,12 +377,6 @@
 
   function openReader(quiet) {
     if (reader) return true;
-    /* where were you on the site? (modal, visible, actually scrolled) —
-       so the reader can open on the same paragraph, not always the top */
-    const openAnchor =
-      prefs.mode !== 'page' && !curtain && window.pageYOffset > 40 && document.body
-        ? topSignature(document.body.querySelectorAll(BLOCK_SEL))
-        : null;
     const article = extract();
     if (!article || !article.node.textContent.trim()) {
       if (!quiet) {
@@ -427,21 +421,16 @@
     /* modal mode: body is only hidden by the .flyleaf-on rule */
 
     applyPrefs();
-    let synced = false;
-    if (openAnchor) {
-      const target = firstWithText(document.querySelectorAll(READER_BLOCK_SEL), openAnchor);
-      if (target) { scrollDocToNode(target); synced = true; }
-    }
-    if (!synced) window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
     curtainOff();
     try { sessionStorage.setItem('flyleaf-active', '1'); } catch (e) {}
     return true;
   }
 
-  /* ---- scroll sync between reader and page (both directions) ----
-     Matched by the text of the paragraph at the top of the viewport:
-     opening lands the reader on what you were reading on the site, and
-     leaving lands the site on what you were reading in the reader. */
+  /* ---- scroll sync: page follows reader on close ----
+     When you leave the reader, the site is lined up with what you were
+     reading — matched by the text of the paragraph at the top of the
+     reader viewport, found again in the original page. */
   const BLOCK_SEL = 'p, h1, h2, h3, h4, li, blockquote';
   const READER_BLOCK_SEL = BLOCK_SEL.split(', ').map((s) => '#flyleaf-body ' + s).join(', ');
   const sigOf = (node) => {
@@ -470,9 +459,6 @@
     }
     return null;
   }
-  const scrollDocToNode = (node) =>
-    window.scrollTo(0, Math.max(0, node.getBoundingClientRect().top + window.pageYOffset - 80));
-
   /* the Safari "close" motion: the reader slides down out of view,
      revealing the page underneath, then is removed. */
   function dropAway(node, done) {
