@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Flyleaf",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "A Safari-style reader mode for the web — distraction-free reading, arrow-key page navigation, themes, and per-site memory.",
   "permissions": [
     "storage"
