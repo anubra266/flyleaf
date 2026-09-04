@@ -1,6 +1,6 @@
 {
   "name": "flyleaf",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A Safari-style reader mode for the web — distraction-free reading, arrow-key page navigation, themes, and per-site memory.",
   "private": true,
   "license": "MIT",
