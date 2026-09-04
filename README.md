@@ -1,86 +1,86 @@
 # Flyleaf
 
-Safari-style reader mode for Chrome, built for serialized fiction — clean
-chapters, arrow-key navigation, per-site memory.
+A Safari-style reader mode for Chrome — distraction-free reading, arrow-key
+page navigation, and per-site memory.
 
 *The flyleaf is the quiet blank page before the story starts.*
 
 ## Features
 
 - **Reader mode anywhere** — [Mozilla Readability](https://github.com/mozilla/readability)
-  (the Firefox reader engine) extracts the chapter; Flyleaf renders it as a
-  clean, fast page
-- **Arrow-key chapters** — `←`/`→` jump to the previous/next chapter.
-  Detection is automatic (`rel` attributes, common novel-theme selectors,
-  link text); when a site defies detection, **pick the links visually**:
-  click "Pick next", click the site's own next-chapter button once, and
-  Flyleaf remembers it for that site
-- **Safari-style settings** — theme swatches (Light / Sepia / Gray /
-  Midnight), Safari's font list, text size to 42px (so you never need
-  browser zoom), column width, line height
-- **Two disclosure modes** —
-  - **Modal**: the original page stays beneath; leaving reader restores it
-    instantly
-  - **Page**: the original page's DOM is removed entirely while reading
-    (nothing left to lay out, paint, or composite); leaving reloads it
-- **Per-site on/off memory** — flip it on for a novel site once, every
-  chapter opens in reader
-- **All settings live in the toolbar popup** (click the Flyleaf icon) —
-  nothing is injected into pages until you enter the reader
-- **`Alt+R`** to toggle (rebindable at `chrome://extensions/shortcuts`)
+  (the Firefox reader engine) pulls the article out of the page; Flyleaf
+  renders it as a clean, fast page.
+- **Arrow-key navigation** — `←`/`→` jump to the previous/next page.
+  Detection is automatic (`rel` attributes, common prev/next selectors,
+  link text) and handles button / JS controls, not just links. When a site
+  defies detection, **pick the controls visually**: click "Pick next",
+  click the site's own next button once, and Flyleaf remembers it.
+- **Themes & type** — theme swatches (Light / Sepia / Gray / Midnight),
+  a choice of reading fonts, Safari-style zoom, and line height.
+- **Per-site auto-enable** — turn Flyleaf on for a site once and it opens
+  automatically on matching pages. Scope it with URL patterns (e.g.
+  `/series/*/chapter-*`, comma-separated) so it stays off on the home page.
+- **Follows same-page navigation** — on SPA sites that change the URL
+  without a reload, Flyleaf re-parses the new page automatically.
+- **All settings live in the toolbar popup** — nothing is injected into a
+  page until you enter the reader.
+- **`Alt+R`** to toggle (rebindable at `chrome://extensions/shortcuts`).
 
 ## Install (unpacked)
 
 1. `chrome://extensions` → enable **Developer mode**
 2. **Load unpacked** → select this directory
-3. Open a chapter page and press `Alt+R`, or click the Flyleaf icon →
-   **Show Reader**
+3. Open a page and press `Alt+R`, or click the Flyleaf icon → **Enable Reader**
 
 ## In the reader
 
 | Key | Action |
 | --- | --- |
-| `←` / `→` | previous / next chapter |
-| `−` / `+` | text size |
-| `Esc` | leave reader |
+| `←` / `→` | previous / next page |
+| `−` / `+` | zoom |
+| `Esc` | exit reader |
 
 ## Engineering notes
 
-Behaviors here were each a bug once, on real novel sites:
+Behaviors here were each a real bug once:
 
-- **Wait for content before parsing.** SPA sites render chapters after
-  `document_idle`; parsing early returns `null` or a garbage shell.
-  Flyleaf polls until the page holds ≥500 chars of paragraph text.
-- **Mark hidden nodes in the live page before cloning.** Readability
-  parses a detached clone where computed styles don't exist, so
-  stylesheet-hidden ad shells and invisible anti-copy watermark spans
-  would leak into the output. They're tagged live, stripped pre-parse.
-- **SPA hooks re-extract only on a real URL change.** Inertia-style
-  routers call `replaceState` on every scroll tick to record scroll
-  position; reacting to those re-rendered the reader mid-scroll.
+- **Wait for content before parsing.** SPA sites render the article after
+  load; parsing early returns `null` or a garbage shell. Flyleaf polls
+  until the page holds enough text — counting `<div>`-per-line pages, not
+  just `<p>`.
+- **Mark hidden nodes in the live page before cloning.** Readability parses
+  a detached clone where computed styles don't exist, so stylesheet-hidden
+  shells and invisible anti-copy spans would leak in. They're tagged live
+  and stripped pre-parse.
+- **Detect same-page navigation by polling `location.href`.** A content
+  script can't hook the page's `history.pushState` from its isolated world,
+  so polling is the reliable signal; the re-parse waits until the extracted
+  page actually changes.
+- **Own the keyboard while reading.** `←`/`→`/`Esc`/`±` are captured on
+  `window` at `document_start` and `stopImmediatePropagation`'d across
+  keydown, keypress and keyup — so a site that binds its own arrow nav
+  can't navigate on top of Flyleaf.
 - **The document scrolls, not an inner div.** Root scrolling is the
-  always-threaded fast path. No `backdrop-filter` anywhere (per-frame
-  re-blur over scrolling content), no `content-visibility` on paragraphs
-  (per-paragraph just-in-time layout hitches).
+  always-threaded fast path. No `backdrop-filter`, no `content-visibility`
+  on paragraphs.
 - **Picker locators degrade gracefully**: unique id/rel/class selector →
-  structural `:nth-child` path from a stable ancestor → exact link text
-  (`text:Next →`), for Tailwind-style sites with no unique selectors.
+  structural `:nth-child` path → exact link/button text, for sites with no
+  unique selectors.
 
 ## Layout
 
 ```
 manifest.json         MV3 manifest
-src/background.js     toolbar click + Alt+R → message to content script
+src/background.js     Alt+R command → message to content script
 src/styles.js         all injected CSS (scoped under #flyleaf-*)
-src/popup.html+js     the settings popup (theme, font, size, mode, nav training)
-src/content.js        extraction, rendering, picker, keys, SPA hooks
+src/popup.html+js     the settings popup (theme, font, zoom, nav training)
+src/content.js        extraction, rendering, picker, keys, SPA polling
 vendor/Readability.js Mozilla Readability (Apache-2.0), unmodified
 ```
 
 ## Roadmap
 
-- Preload the next chapter for instant `→`
-- Export/import per-site nav training
+- Export/import per-site settings
 - Firefox port (MV3 differences are minimal)
 
 ## License

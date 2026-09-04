@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Flyleaf",
   "version": "0.2.0",
-  "description": "Safari-style reader mode for serialized fiction — clean chapters, arrow-key navigation, per-site memory.",
+  "description": "A Safari-style reader mode for the web — distraction-free reading, arrow-key page navigation, themes, and per-site memory.",
   "permissions": [
     "storage"
   ],

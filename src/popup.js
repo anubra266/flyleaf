@@ -24,7 +24,7 @@ const FONTS = {
 };
 
 const ZOOM_STEPS = [50, 75, 85, 100, 115, 125, 150, 175, 200, 250, 300];
-const DEFAULT_PREFS = { theme: 'midnight', font: 'system', zoom: 100, lh: 1.8, mode: 'modal' };
+const DEFAULT_PREFS = { theme: 'midnight', font: 'system', zoom: 100, lh: 1.8 };
 
 let prefs = { ...DEFAULT_PREFS };
 let status = null; /* from the content script; null = not available here */
@@ -137,42 +137,24 @@ function render() {
   });
   app.appendChild(lh);
 
-  /* mode */
-  app.appendChild(el('div', { class: 'fl-label', text: 'Reader replaces the page' }));
-  const seg = el('div', { class: 'fl-seg' });
-  for (const [key, label, hint] of [
-    ['modal', 'Modal', 'site kept beneath; instant exit'],
-    ['page', 'Page', 'site removed; exit reloads'],
-  ]) {
-    seg.appendChild(
-      el('button', {
-        class: prefs.mode === key ? 'fl-active' : '',
-        text: label,
-        title: hint,
-        onclick: async () => { prefs.mode = key; await savePrefs(); render(); },
-      })
-    );
-  }
-  app.appendChild(seg);
-
   /* per-site settings — only when a content script answered */
   if (status) {
-    /* auto-open scope: which pages of this site open in reader */
-    app.appendChild(el('div', { class: 'fl-label', text: 'Auto-open on — ' + status.host }));
+    /* auto-enable scope: which pages of this site open in reader */
+    app.appendChild(el('div', { class: 'fl-label', text: 'Auto-enable on — ' + status.host }));
     const patInput = el('input', {
       type: 'text', class: 'fl-input',
       value: status.pattern || '',
-      placeholder: 'whole site — e.g. /novel/*/chapter-*, /read/*',
+      placeholder: 'whole site — e.g. /series/*/chapter-*, /read/*',
       title: 'Comma-separate multiple patterns; * is a wildcard',
     });
     const patHint = el('div', { class: 'fl-nav-line' });
     const paintHint = () => {
       const p = patInput.value.trim();
       if (!p) {
-        patHint.textContent = 'Opens on every page of this site.';
+        patHint.textContent = 'Enables on every page of this site.';
       } else {
         patHint.textContent =
-          (pathMatches(p, status.path) ? 'This page matches ✓' : 'This page won’t auto-open ✗') +
+          (pathMatches(p, status.path) ? 'This page matches ✓' : 'This page won’t auto-enable ✗') +
           '  ·  ' + status.path;
       }
       patHint.title = status.path;
@@ -192,12 +174,12 @@ function render() {
       el('div', { class: 'fl-row2' }, [
         el('button', {
           class: 'fl-btn', text: 'Use this page',
-          title: 'Auto-open on pages like the one you’re reading now',
+          title: 'Auto-enable on pages like the one you’re reading now',
           onclick: async () => { patInput.value = status.suggest || status.path; paintHint(); await savePattern(patInput.value); },
         }),
         el('button', {
           class: 'fl-btn', text: 'Whole site',
-          title: 'Auto-open on every page of this site',
+          title: 'Auto-enable on every page of this site',
           onclick: async () => { patInput.value = ''; paintHint(); await savePattern(''); },
         }),
       ])
@@ -251,7 +233,7 @@ function render() {
   /* primary action */
   const primary = el('button', {
     class: 'fl-primary',
-    text: status ? (status.active ? 'Hide Reader' : 'Show Reader') : 'Flyleaf can’t run on this page',
+    text: status ? (status.active ? 'Disable Reader' : 'Enable Reader') : 'Flyleaf can’t run on this page',
     onclick: async () => {
       if (!status) return;
       await send({ type: 'flyleaf-set-enabled', on: !status.active });
@@ -264,10 +246,23 @@ function render() {
   if (!status) primary.disabled = true;
   app.appendChild(primary);
 
+  /* when no content script answered, the page usually just predates the
+     extension — offer a reload to activate it */
+  if (!status && tabId != null) {
+    const reload = el('div', { class: 'fl-reload' }, [
+      el('span', { text: 'Open before installing Flyleaf? ' }),
+      el('a', {
+        href: '#', text: 'Reload this page',
+        onclick: (e) => { e.preventDefault(); chrome.tabs.reload(tabId); window.close(); },
+      }),
+    ]);
+    app.appendChild(reload);
+  }
+
   app.appendChild(
     el('div', {
       class: 'fl-hint',
-      html: 'In reader: <kbd>←</kbd> <kbd>→</kbd> chapters · <kbd>−</kbd>/<kbd>+</kbd> zoom · <kbd>Esc</kbd> hide<br><kbd>Alt+R</kbd> toggles from anywhere',
+      html: 'In reader: <kbd>←</kbd> <kbd>→</kbd> chapters · <kbd>−</kbd>/<kbd>+</kbd> zoom · <kbd>Esc</kbd> exit<br><kbd>Alt+R</kbd> toggles from anywhere',
     })
   );
 }

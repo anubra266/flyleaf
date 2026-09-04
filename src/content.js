@@ -1,5 +1,5 @@
 /* Flyleaf — content script.
-   Safari-style reader mode for serialized fiction.
+   A Safari-style reader mode for the web.
 
    Hard-won behaviors baked in (each one was a real bug once):
    - Wait for content before parsing: SPAs render chapters after
@@ -12,8 +12,8 @@
    - The reader is an in-flow block and the DOCUMENT scrolls (root
      scroller = fastest path). No inner scroller, no content-visibility
      on paragraphs, no backdrop-filter anywhere.
-   - Page mode removes the site's DOM outright (exit = reload);
-     modal mode hides it (exit = instant restore). */
+   - The reader overlays the page; leaving it restores the site instantly
+     (the original DOM is hidden, never removed). */
 
 (function () {
   'use strict';
@@ -57,7 +57,6 @@
     font: 'system',
     zoom: 100,
     lh: 1.8,
-    mode: 'modal', /* 'modal' hides the site DOM; 'page' removes it */
   };
 
   /* ---------------- storage ---------------- */
@@ -101,8 +100,8 @@
   }
   const normPath = (p) => p.replace(/\/+$/, '') || '/';
   const splitPatterns = (s) => String(s).split(',').map((x) => x.trim()).filter(Boolean);
-  /* pattern is a comma-separated list; the page auto-opens if it matches
-     ANY entry. Entries missing a leading "/" get one, so "novel/*" works. */
+  /* pattern is a comma-separated list; the page auto-enables if it matches
+     ANY entry. Entries missing a leading "/" get one, so "series/*" works. */
   function urlMatches(pattern) {
     if (!pattern) return true;
     const path = normPath(location.pathname);
@@ -116,17 +115,18 @@
       }
     });
   }
-  /* Seed a pattern from the current chapter URL that generalises across
-     the WHOLE site, not just the novel you're on: wildcard the chapter
-     number AND the story-title slug, but keep the section words
-     (/novel, /read, …). So enabling on one novel's chapter also
-     auto-opens every other novel's chapters on that site. A chapter at
-     "/novel/some-title/chapter-84" seeds the glob "/novel/[*]/chapter-[*]". */
+  /* Seed a pattern from the current URL that generalises across the whole
+     site, not just the item you're on: wildcard the number and everything
+     after it in a segment, and wildcard deeper title-slug segments, while
+     keeping the leading section words. e.g.
+       /series/some-title/chapter-1-enter-the-palace
+         -> /series/[*]/chapter-[*]
+       /read/12345/67  ->  /read/[*]/[*] */
   function seedPattern() {
     const segs = normPath(location.pathname).split('/');
     const out = segs.map((seg, i) => {
       if (!seg) return seg;                                  /* leading '' */
-      if (/\d/.test(seg)) return seg.replace(/\d+/g, '*');   /* chapter-84 -> chapter-*, 12345 -> * */
+      if (/\d/.test(seg)) return seg.replace(/\d.*$/, '*');  /* chapter-1-foo -> chapter-*, 12345 -> * */
       if (i > 1 && seg.includes('-')) return '*';            /* deeper title slug -> * */
       return seg;                                            /* section keyword -> keep */
     });
@@ -370,7 +370,6 @@
       let elx = null;
       try { elx = document.querySelector(target.clickSel); } catch (e) {}
       if (elx) { beginNav(); toast('Loading ' + label + '…', true); elx.click(); return true; }
-      if (bodyWasRemoved) toast('Turn off Page mode to use this site’s buttons');
     }
     return false;
   }
@@ -383,7 +382,6 @@
   let progress = null;
   let nav = { prev: null, next: null };
   let savedScroll = 0;
-  let bodyWasRemoved = false;
   /* text signature of the rendered chapter; a re-parse after a same-page
      nav waits until this changes, so it doesn't re-render the old one */
   let lastSig = null;
@@ -559,14 +557,8 @@
     document.documentElement.classList.add('flyleaf-on');
 
     savedScroll = window.pageYOffset;
-    if (prefs.mode === 'page') {
-      /* the site's DOM is REMOVED — zero layout/paint/compositing left.
-         Exit brings it back via reload. */
-      document.body.replaceChildren();
-      bodyWasRemoved = true;
-    }
-    /* modal mode: body is only hidden by the .flyleaf-on rule */
-
+    /* the site's body is only hidden (by the .flyleaf-on rule), never
+       removed — so leaving the reader restores it instantly */
     applyPrefs();
     window.scrollTo(0, 0);
     curtainOff();
@@ -639,19 +631,10 @@
       document.documentElement.classList.remove('flyleaf-on');
       return;
     }
-    /* page mode destroyed the site DOM — drop the reader, then reload */
-    if (bodyWasRemoved) {
-      const gone = reader;
-      reader = null;
-      if (progress) progress.remove();
-      progress = null;
-      dropAway(gone, () => location.reload());
-      return;
-    }
 
-    /* modal: capture reading position, freeze the reader as a fixed
-       overlay showing the same content, reveal + line up the original
-       page underneath, then let the reader fall away over it. */
+    /* capture reading position, freeze the reader as a fixed overlay
+       showing the same content, reveal + line up the original page
+       underneath, then let the reader fall away over it. */
     const anchor = topSignature(document.querySelectorAll(READER_BLOCK_SEL));
     const scrolledBy = window.pageYOffset;
     const sheet = reader.querySelector('#flyleaf-sheet');
@@ -845,16 +828,7 @@
 
   function startPicking(which) {
     /* the links live in the ORIGINAL page, so the site must be visible */
-    if (reader) {
-      if (bodyWasRemoved) {
-        /* page mode destroyed the DOM — reload raw, then resume picking */
-        sessionStorage.setItem('flyleaf-pick', which);
-        sessionStorage.setItem('flyleaf-resume', '1');
-        location.reload();
-        return;
-      }
-      closeReaderKeepPrefs();
-    }
+    if (reader) closeReaderKeepPrefs();
     picking = which;
     pickBox = el('div', { id: 'flyleaf-pick-box' });
     pickTip = el('div', {
@@ -964,7 +938,6 @@
       reader = null;
       progress = null;
       document.documentElement.classList.remove('flyleaf-on');
-      bodyWasRemoved = false;
       autoOpen(0, true);
     } else if (shouldAutoOpen()) {
       curtainOn();
@@ -1070,16 +1043,6 @@
   function boot() {
     applyPrefs();
     ensureStyle();
-
-    /* resume a pick that needed a raw page (page mode) */
-    const pendingPick = sessionStorage.getItem('flyleaf-pick');
-    if (pendingPick) {
-      sessionStorage.removeItem('flyleaf-pick');
-      curtainOff();
-      waitForContent(() => startPicking(pendingPick));
-      return;
-    }
-
     if (shouldAutoOpen()) {
       autoOpen();
     }
@@ -1103,7 +1066,7 @@
   (async function early() {
     prefs = { ...DEFAULT_PREFS, ...(await store.get('prefs', {})) };
     sites = await store.get('sites', {});
-    if (shouldAutoOpen() && !sessionStorage.getItem('flyleaf-pick')) {
+    if (shouldAutoOpen()) {
       curtainOn();
     }
     if (document.readyState === 'loading') {

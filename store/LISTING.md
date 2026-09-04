@@ -37,31 +37,31 @@ Wait for it to unpack, then fill the tabs below.
 
 **Item name**
 ```
-Flyleaf — Reader Mode for Novels
+Flyleaf — Reader Mode
 ```
 
-**Summary** (132 char max — this is 111)
+**Summary** (132 char max — this is 106)
 ```
-Safari-style reader mode for web novels. Clean chapters, arrow-key next/prev, four themes, no ads, no tracking.
+A Safari-style reader mode for the web. Clean pages, arrow-key next/prev, four themes. No ads, no tracking.
 ```
 
 **Description** (paste as-is)
 ```
-Flyleaf turns any web-novel or serialized-fiction site into a clean, quiet reading page — the way Safari's Reader does, but built for the way you actually read novels: one chapter after another, for hours.
+Flyleaf turns a cluttered web page into a clean, quiet reading page — the way Safari's Reader does — and adds keyboard page-turning for anything you read across many pages, from long articles to serialized stories.
 
 WHAT IT DOES
 
-• Reader mode anywhere. Flyleaf uses Mozilla Readability — the same engine behind Firefox's reader — to pull just the chapter text out of the page, then rebuilds it as a fast, flat "paper" sheet. No ads, no pop-ups, no floating share bars, no layout shift.
+• Reader mode anywhere. Flyleaf uses Mozilla Readability — the same engine behind Firefox's reader — to pull the article out of the page, then rebuilds it as a fast, flat "paper" sheet. No ads, no pop-ups, no floating share bars, no layout shift.
 
-• Turn pages with the arrow keys. ← and → jump to the previous and next chapter. Flyleaf finds the site's own prev/next links automatically. When a site hides them behind odd markup, you can point them out once — click "Pick next", click the site's real Next button, and Flyleaf remembers it for that site forever.
+• Turn pages with the arrow keys. ← and → jump to the previous and next page. Flyleaf finds the site's own prev/next controls automatically — links and JavaScript buttons alike. When a site hides them behind odd markup, point them out once: click "Pick next", click the site's real Next control, and Flyleaf remembers it.
 
-• Four reading themes. Light, Sepia, Gray, and Midnight — pick per your room, not the site's mood.
+• Four reading themes. Light, Sepia, Gray, and Midnight — pick for your room, not the site's mood.
 
-• Zoom like Safari. One zoom control scales the text and the page together, so big text never means a broken layout. Adjust font, line height, and column feel to taste.
+• Zoom like Safari. One zoom control scales the text and the page together, so big text never means a broken layout. Adjust font and line height to taste.
 
-• Two ways to read. Modal mode keeps the original page underneath and restores it instantly when you leave. Page mode removes the original page entirely while you read, for the lightest possible render on heavy sites.
+• Auto-enable per site. Turn Flyleaf on for a site once and it opens automatically on matching pages — scope it with a simple URL pattern so it stays off on the home page.
 
-• Remembers per site. Flip Flyleaf on for a novel site once and every chapter opens straight into the reader.
+• Keeps up with modern sites. On single-page apps that swap content without a full reload, Flyleaf re-renders the new page on its own.
 
 • One shortcut. Press Alt+R to toggle the reader from anywhere (rebindable at chrome://extensions/shortcuts).
 
@@ -71,7 +71,7 @@ Flyleaf collects nothing and sends nothing anywhere. There are no analytics, no 
 
 WHY THE BROAD SITE ACCESS
 
-A universal reader has to be able to read the page you're on, and novels live on thousands of small, ever-changing sites. Flyleaf asks to run on all sites so it can offer reader mode on any of them — but it injects nothing into a page until you actually open the reader there, and it never transmits page content off your machine.
+A reader mode has to be able to read the page you're on, and reading lives on countless sites. Flyleaf asks to run on all sites so it can offer reader mode on any of them — but it injects nothing into a page until you actually open the reader there, and it never transmits page content off your machine.
 ```
 
 **Category**
@@ -104,7 +104,7 @@ optional — skip them.
 
 **Single purpose** (paste)
 ```
-Flyleaf provides a distraction-free reader mode for web-novel and serialized-fiction pages: it extracts the chapter text, displays it in a clean themed layout, and lets the reader move between chapters with the keyboard.
+Flyleaf provides a distraction-free reader mode for web pages: it extracts the main article text, displays it in a clean themed layout, and lets the reader move between pages with the keyboard.
 ```
 
 **Permission justifications**
@@ -117,7 +117,7 @@ Stores the user's own reading preferences (theme, zoom, line height, reader on/o
 - Host permission / "Read and change all your data on all websites"
   (this comes from the `<all_urls>` content script) →
 ```
-Flyleaf is a universal reader, so it must be able to run on whatever novel site the user is reading — and those sites number in the thousands. The content script only reads the current page's text to render reader mode, and only after the user activates the reader. It never transmits page content off the device.
+Flyleaf is a general reader mode, so it must be able to run on whatever site the user is reading — which can be any site on the web. The content script only reads the current page's text to render reader mode, and only after the user activates the reader. It never transmits page content off the device.
 ```
 
 **Remote code** → **No, I am not using remote code.**
