@@ -246,13 +246,13 @@ function render() {
   if (!status) primary.disabled = true;
   app.appendChild(primary);
 
-  /* when no content script answered, the page usually just predates the
-     extension — offer a reload to activate it */
+  /* no content script answered — usually the tab was open before the
+     extension was installed/updated/enabled; a reload activates it */
   if (!status && tabId != null) {
     const reload = el('div', { class: 'fl-reload' }, [
-      el('span', { text: 'Open before installing Flyleaf? ' }),
+      el('span', { text: 'Not active on this tab yet — ' }),
       el('a', {
-        href: '#', text: 'Reload this page',
+        href: '#', text: 'reload the page',
         onclick: (e) => { e.preventDefault(); chrome.tabs.reload(tabId); window.close(); },
       }),
     ]);
