@@ -7,7 +7,8 @@
    No backdrop-filter anywhere: a blur over scrolling content re-blurs
    every frame and is the classic sticky-header jank. */
 
-const FLYLEAF_CSS = `
+const css = String.raw
+const FLYLEAF_CSS = css`
 :root.flyleaf-on { background: var(--fl-backdrop) !important; }
 :root.flyleaf-on body { display: none !important; }
 
