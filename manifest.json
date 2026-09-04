@@ -1,9 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Flyleaf",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Safari-style reader mode for serialized fiction — clean chapters, arrow-key navigation, per-site memory.",
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "action": {
     "default_title": "Flyleaf",
     "default_popup": "src/popup.html"
@@ -26,8 +28,14 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["vendor/Readability.js", "src/styles.js", "src/content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "vendor/Readability.js",
+        "src/styles.js",
+        "src/content.js"
+      ],
       "run_at": "document_start"
     }
   ]
