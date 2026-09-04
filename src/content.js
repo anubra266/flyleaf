@@ -465,22 +465,26 @@
     ]);
   }
 
-  /* Pull a "Chapter 178" out of a "Chapter 178 - Real Title" heading so
-     the number can live in the header grid and the title reads clean. */
+  /* Pull the chapter number out of a heading so it can live in the header
+     grid and the title reads clean, wherever the "Chapter N" sits:
+       "Chapter 178"                       -> chapter 178
+       "Chapter 178 - Real Title"          -> 178 + "Real Title"
+       "Real Title - Chapter 178 - Site"   -> 178 + "Real Title"   */
   function splitChapter(full) {
     const s = (full || '').trim();
     const WORD = '(?:chapter|chap|ch|episode|ep|part|volume|vol)';
-    const CH = '(?:chapter|chap|ch|episode|ep)'; /* trailing: only true chapter words */
+    const CH = '(?:chapter|chap|ch|episode|ep)'; /* only true chapter words when it follows the title */
     const NUM = '([0-9]+(?:\\.[0-9]+)?)';
     /* "Chapter 178" alone */
     const only = s.match(new RegExp('^' + WORD + '\\.?\\s*' + NUM + '$', 'i'));
     if (only) return { chapter: only[1], title: '' };
-    /* "Chapter 178 - Title" / "178: Title" */
+    /* "Chapter 178 - Title" / "178: Title" (chapter leads) */
     const lead = s.match(new RegExp('^(?:' + WORD + '\\.?\\s*)?' + NUM + '\\s*[-:.)\\u2013\\u2014]+\\s*(.+)$', 'i'));
     if (lead && lead[2]) return { chapter: lead[1], title: lead[2].trim() };
-    /* "Title ... Chapter 1" (chapter at the end) */
-    const tail = s.match(new RegExp('^(.+?)(?:\\s+|\\s*[-:.\\u2013\\u2014]\\s*)' + CH + '\\.?\\s*' + NUM + '$', 'i'));
-    if (tail && tail[1]) return { chapter: tail[2], title: tail[1].trim() };
+    /* "Title ... Chapter 178 ..." (chapter anywhere after the title;
+       anything trailing it — a subtitle or site name — is dropped) */
+    const mid = s.match(new RegExp('^(.+?)(?:\\s+|\\s*[-:.\\u2013\\u2014]\\s*)' + CH + '\\.?\\s*' + NUM, 'i'));
+    if (mid && mid[1]) return { chapter: mid[2], title: mid[1].trim() };
     return { chapter: null, title: s };
   }
 
