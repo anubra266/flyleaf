@@ -170,8 +170,8 @@
     let len = 0;
     for (const n of document.querySelectorAll('p, li')) len += n.textContent.length;
     if (len >= MIN_TEXT) return true;
-    /* many MTL/translation sites (wtr-lab, …) render each line as its
-       own <div>, not a <p>. Count leaf text blocks too. */
+    /* some sites render each line as its own <div>, not a <p> — count
+       leaf text blocks too */
     for (const n of document.querySelectorAll('div')) {
       if (n.children.length === 0) {
         len += n.textContent.length;
@@ -254,65 +254,128 @@
     return { title: article.title, node: box };
   }
 
-  /* ---------------- prev / next ---------------- */
+  /* ---------------- prev / next ----------------
+     A nav target is { url } for a real link, or { clickSel } for a
+     button / JS control (many SPA sites render Prev/Next as <button> with
+     no href). Following a click target means clicking the site's own
+     control and letting its router navigate; the URL poll then re-parses
+     the new chapter. */
 
   const norm = (u) => (u ? u.replace(/[#?].*$/, '').replace(/\/$/, '') : null);
-  function notSelf(a) {
-    if (!a || !/^https?:/i.test(a.href || '')) return null;
-    return norm(a.href) === norm(location.href) ? null : a.href;
+  const notFlyleaf = (n) => !(n && n.closest && n.closest('[id^="flyleaf-"]'));
+
+  /* a live element -> nav target (or null) */
+  function elementTarget(node) {
+    if (!node || !notFlyleaf(node)) return null;
+    if (node.tagName === 'A' && /^https?:/i.test(node.href || '')) {
+      return norm(node.href) === norm(location.href) ? null : { url: node.href };
+    }
+    if (node.matches && node.matches('button, [role="button"], [onclick]')) {
+      const sel = selectorFor(node);
+      return sel ? { clickSel: sel } : null;
+    }
+    return null;
   }
+
+  function linkByText(want) {
+    for (const a of document.querySelectorAll('a[href]')) {
+      if (!notFlyleaf(a)) continue;
+      if ((a.textContent || '').replace(/\s+/g, ' ').trim() === want) {
+        const t = elementTarget(a);
+        if (t) return t;
+      }
+    }
+    return null;
+  }
+  function clickByText(want) {
+    for (const b of document.querySelectorAll('button, [role="button"], a')) {
+      if (!notFlyleaf(b)) continue;
+      if ((b.textContent || '').replace(/\s+/g, ' ').trim() === want) {
+        const sel = selectorFor(b);
+        if (sel) return { clickSel: sel };
+      }
+    }
+    return null;
+  }
+
+  const PREV_RE = /^(<|«|‹|←)?\s*prev(ious)?(\s*(chapter|post|page))?\s*$/i;
+  const NEXT_RE = /^\s*next(\s*(chapter|post|page))?\s*(>|»|›|→)?\s*$/i;
 
   function findNav() {
     const cfg = siteCfg();
-    const q = (sel) => {
+
+    /* resolve a stored locator string into a target */
+    const fromSaved = (sel) => {
       if (!sel) return null;
-      /* "text:..." locators come from the picker when no unique CSS
-         selector exists (Tailwind-style sites: shared utility classes,
-         no ids). Link text like "Next →" is stable across chapters. */
-      if (sel.startsWith('text:')) {
-        const want = sel.slice(5);
-        for (const a of document.querySelectorAll('a[href]')) {
-          if (a.closest('[id^="flyleaf-"]')) continue;
-          if ((a.textContent || '').replace(/\s+/g, ' ').trim() === want) {
-            const u = notSelf(a);
-            if (u) return u;
-          }
-        }
-        return null;
+      if (sel.startsWith('click-text:')) return clickByText(sel.slice(11));
+      if (sel.startsWith('click:')) {
+        try { return document.querySelector(sel.slice(6)) ? { clickSel: sel.slice(6) } : null; }
+        catch { return null; }
       }
-      try {
-        return notSelf(document.querySelector(sel));
-      } catch {
-        return null;
-      }
+      if (sel.startsWith('text:')) return linkByText(sel.slice(5));
+      try { return elementTarget(document.querySelector(sel)); } catch { return null; }
     };
-    const byText = (re) => {
-      for (const a of document.querySelectorAll('a[href]')) {
-        if (a.closest('[id^="flyleaf-"]')) continue;
-        const t = (a.textContent || '').replace(/\s+/g, ' ').trim();
-        if (t.length && t.length < 40 && re.test(t)) {
-          const u = notSelf(a);
-          if (u) return u;
-        }
+    const bySelectors = (sels) => {
+      for (const s of sels) {
+        try { const t = elementTarget(document.querySelector(s)); if (t) return t; } catch (e) {}
       }
       return null;
     };
+    const linkByRe = (re) => {
+      for (const a of document.querySelectorAll('a[href]')) {
+        if (!notFlyleaf(a)) continue;
+        const t = (a.textContent || '').replace(/\s+/g, ' ').trim();
+        if (t && t.length < 40 && re.test(t)) { const x = elementTarget(a); if (x) return x; }
+      }
+      return null;
+    };
+    /* buttons/JS controls: match exact-ish chapter nav text only, to
+       avoid clicking a random "Next" (carousel, form step, pagination) */
+    const clickByRe = (re) => {
+      for (const b of document.querySelectorAll('button, [role="button"]')) {
+        if (!notFlyleaf(b)) continue;
+        const t = (b.textContent || '').replace(/\s+/g, ' ').trim();
+        if (t && t.length < 24 && re.test(t)) { const sel = selectorFor(b); if (sel) return { clickSel: sel }; }
+      }
+      return null;
+    };
+
     return {
-      /* user-trained selector first, then the composite auto-detector */
+      /* user-trained locator first, then links, then JS controls */
       prev:
-        q(cfg.prevSel) ||
-        q('a[rel~="prev"]') || q('.nav-previous a') || q('a.nav-previous') ||
-        q('a.prev_page') || q('a.chnav.prev') ||
-        byText(/^(<|«|‹)?\s*prev(ious)?(\s*(chapter|post|page))?\s*$/i) ||
-        byText(/prev(ious)?\s*chapter/i),
+        fromSaved(cfg.prevSel) ||
+        bySelectors(['a[rel~="prev"]', '.nav-previous a', 'a.nav-previous', 'a.prev_page', 'a.chnav.prev']) ||
+        linkByRe(PREV_RE) || linkByRe(/prev(ious)?\s*chapter/i) ||
+        clickByRe(PREV_RE),
       next:
-        q(cfg.nextSel) ||
-        q('a[rel~="next"]') || q('.nav-next a') || q('a.nav-next') ||
-        q('a.next_page') || q('a.chnav.next') ||
-        byText(/^\s*next(\s*(chapter|post|page))?\s*(>|»|›)?\s*$/i) ||
-        byText(/next\s*chapter/i),
+        fromSaved(cfg.nextSel) ||
+        bySelectors(['a[rel~="next"]', '.nav-next a', 'a.nav-next', 'a.next_page', 'a.chnav.next']) ||
+        linkByRe(NEXT_RE) || linkByRe(/next\s*chapter/i) ||
+        clickByRe(NEXT_RE),
     };
   }
+
+  /* follow a nav target: navigate a link, or click a JS control (the
+     control lives in the still-present original DOM — hidden in modal
+     mode, but a programmatic click still fires the site's router). */
+  function navGo(target, label) {
+    if (!target) return false;
+    if (target.url) {
+      beginNav();
+      toast('Loading ' + label + '…', true);
+      location.href = target.url;
+      return true;
+    }
+    if (target.clickSel) {
+      let elx = null;
+      try { elx = document.querySelector(target.clickSel); } catch (e) {}
+      if (elx) { beginNav(); toast('Loading ' + label + '…', true); elx.click(); return true; }
+      if (bodyWasRemoved) toast('Turn off Page mode to use this site’s buttons');
+    }
+    return false;
+  }
+  function goPrev() { if (navigating) return; if (!navGo(nav.prev, 'previous chapter')) toast('No previous chapter'); }
+  function goNext() { if (navigating) return; if (!navGo(nav.next, 'next chapter')) toast('No next chapter'); }
 
   /* ---------------- reader ---------------- */
 
@@ -321,6 +384,23 @@
   let nav = { prev: null, next: null };
   let savedScroll = 0;
   let bodyWasRemoved = false;
+  /* text signature of the rendered chapter; a re-parse after a same-page
+     nav waits until this changes, so it doesn't re-render the old one */
+  let lastSig = null;
+  /* a chapter change is in flight (nav fired, new chapter not yet shown);
+     blocks another nav and keeps the reader owning the keys until it
+     settles. cleared when the new chapter renders, or by a safety timeout */
+  let navigating = false;
+  let navTimer = null;
+  function beginNav() {
+    navigating = true;
+    clearTimeout(navTimer);
+    navTimer = setTimeout(() => { navigating = false; }, 4000);
+  }
+  function endNav() {
+    navigating = false;
+    clearTimeout(navTimer);
+  }
 
   /* The anti-flash curtain: on sites where reader is enabled, the page
      is hidden and painted in the theme backdrop BEFORE first paint
@@ -366,15 +446,24 @@
     st.setProperty('--fl-lh', String(prefs.lh));
   }
 
+  /* a nav pill: a real <a> for links (middle-click / open-in-tab work),
+     or a click-through control for JS nav; a disabled <span> when absent */
+  function navPill(target, html, go) {
+    if (!target) return el('span', { class: 'fl-pill', html });
+    const n = el('a', { class: 'fl-pill', html });
+    if (target.url) {
+      n.setAttribute('href', target.url);
+    } else {
+      n.setAttribute('href', '#');
+      n.setAttribute('role', 'button');
+      n.addEventListener('click', (e) => { e.preventDefault(); go(); });
+    }
+    return n;
+  }
   function navBar() {
-    const pill = (url, html) => {
-      const n = el(url ? 'a' : 'span', { class: 'fl-pill', html });
-      if (url) n.setAttribute('href', url);
-      return n;
-    };
     return el('div', { class: 'fl-nav' }, [
-      pill(nav.prev, '&larr;&nbsp; Previous'),
-      pill(nav.next, 'Next &nbsp;&rarr;'),
+      navPill(nav.prev, '&larr;&nbsp; Previous', goPrev),
+      navPill(nav.next, 'Next &nbsp;&rarr;', goNext),
     ]);
   }
 
@@ -401,11 +490,6 @@
        domain (top-left)      title    (top-right)
        chapter (bottom-left)  prev/next (bottom-right) */
   function headGrid(chapter, title) {
-    const pill = (url, html) => {
-      const n = el(url ? 'a' : 'span', { class: 'fl-pill', html });
-      if (url) n.setAttribute('href', url);
-      return n;
-    };
     const site = el('a', { class: 'fl-cell fl-c-site', href: location.origin + '/', title: 'Go to ' + HOST }, [
       el('span', { class: 'fl-cell-value', text: HOST }),
     ]);
@@ -417,8 +501,8 @@
     ]);
     const navCell = el('div', { class: 'fl-cell fl-c-nav' }, [
       el('div', { class: 'fl-nav' }, [
-        pill(nav.prev, '&larr;&nbsp; Previous'),
-        pill(nav.next, 'Next &nbsp;&rarr;'),
+        navPill(nav.prev, '&larr;&nbsp; Previous', goPrev),
+        navPill(nav.next, 'Next &nbsp;&rarr;', goNext),
       ]),
     ]);
     return el('div', { id: 'flyleaf-head' }, [site, titleCell, chapterCell, navCell]);
@@ -432,7 +516,7 @@
     }
   }
 
-  function openReader(quiet) {
+  function openReader(quiet, fresh) {
     if (reader) return true;
     const article = extract();
     if (!article || !article.node.textContent.trim()) {
@@ -442,6 +526,13 @@
       }
       return false;
     }
+    /* after an SPA nav we want the NEW chapter; if the page still shows
+       the one we just left (visible-chapter swap not done yet), report
+       "not ready" so autoOpen retries until it changes. */
+    const sig = (article.title || '') + '|' +
+      article.node.textContent.replace(/\s+/g, ' ').trim().slice(0, 120);
+    if (fresh && sig === lastSig) return false;
+    lastSig = sig;
     nav = findNav();
     ensureStyle();
 
@@ -479,6 +570,10 @@
     applyPrefs();
     window.scrollTo(0, 0);
     curtainOff();
+    endNav(); /* new chapter is up — release the nav lock */
+    /* clear a lingering "Loading…" toast after a click-based (SPA) chapter
+       change re-opens the reader — there's no page reload to clear it */
+    if (toastEl) { clearTimeout(toastTimer); toastEl.classList.remove('fl-show'); }
     try { sessionStorage.setItem('flyleaf-active', '1'); } catch (e) {}
     return true;
   }
@@ -537,6 +632,7 @@
   }
 
   function closeReader() {
+    endNav(); /* leaving the reader clears any pending nav lock */
     if (!reader) {
       if (progress) progress.remove();
       progress = null;
@@ -608,10 +704,11 @@
   function selectorFor(link) {
     /* Build a selector that should survive across chapters. Prefer
        stable signals; validate that it resolves to this link now. */
+    const tag = link.localName; /* 'a' for links, 'button' for JS controls */
     const candidates = [];
     if (link.id) candidates.push('#' + CSS.escape(link.id));
     const rel = link.getAttribute('rel');
-    if (rel) candidates.push('a[rel="' + CSS.escape(rel) + '"]');
+    if (rel) candidates.push(tag + '[rel="' + CSS.escape(rel) + '"]');
     /* class candidates must be SEMANTIC, not utility soup: Tailwind
        variant classes (disabled:opacity-50, [&_svg]:size-4, …) are
        unique-but-meaningless and produce monster selectors. Keep only
@@ -619,13 +716,13 @@
     const semantic = (c) => /^[a-z][\w-]*$/i.test(c) && !/^(active|current|\d)/i.test(c);
     const classes = [...link.classList].filter(semantic).slice(0, 3);
     if (classes.length) {
-      candidates.push('a.' + classes.map((c) => CSS.escape(c)).join('.'));
+      candidates.push(tag + '.' + classes.map((c) => CSS.escape(c)).join('.'));
     }
     const parent = link.parentElement;
     if (parent) {
       const pc = [...parent.classList].filter(semantic).slice(0, 2);
       if (pc.length) {
-        candidates.push('.' + pc.map((c) => CSS.escape(c)).join('.') + ' a');
+        candidates.push('.' + pc.map((c) => CSS.escape(c)).join('.') + ' ' + tag);
       }
     }
     for (const sel of candidates) {
@@ -664,11 +761,12 @@
     return null;
   }
 
-  function resolveLink(target) {
+  const PICKABLE = 'a[href], button, [role="button"], [onclick]';
+  function resolvePickTarget(target) {
     return (
-      target.closest('a[href]') ||
-      target.querySelector('a[href]') ||
-      (target.parentElement && target.parentElement.closest('a[href]'))
+      target.closest(PICKABLE) ||
+      target.querySelector(PICKABLE) ||
+      (target.parentElement && target.parentElement.closest(PICKABLE))
     );
   }
 
@@ -684,7 +782,7 @@
   }
 
   function onPickMove(e) {
-    const link = resolveLink(e.target);
+    const link = resolvePickTarget(e.target);
     if (!link) {
       pickBox.style.width = '0px';
       pickBox.style.height = '0px';
@@ -700,27 +798,32 @@
   async function onPickClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    const link = resolveLink(e.target);
+    const link = resolvePickTarget(e.target);
     if (!link) {
-      toast('No link there — click on or near the ' + picking + ' link');
+      toast('Nothing clickable there — click the ' + picking + ' control');
       return;
     }
     const which = picking;
-    let sel = selectorFor(link);
-    if (!sel) {
-      /* last resort: match by exact link text across chapters */
-      const t = (link.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 60);
-      if (t) sel = 'text:' + t;
+    const isLink = link.tagName === 'A' && /^https?:/i.test(link.href || '');
+    const cssSel = selectorFor(link);
+    const text = (link.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    let sel;
+    if (isLink) {
+      /* link: CSS selector, else match by exact link text across chapters */
+      sel = cssSel || (text ? 'text:' + text : null);
+    } else {
+      /* button / JS control: click it on future chapters (prefix "click:") */
+      sel = cssSel ? 'click:' + cssSel : (text ? 'click-text:' + text : null);
     }
     stopPicking();
     if (!sel) {
-      toast('Could not build a stable locator for that link');
+      toast('Could not build a stable locator for that control');
       return;
     }
     await saveSite(which === 'prev' ? { prevSel: sel } : { nextSel: sel });
-    const brief = sel.startsWith('text:')
-      ? 'link text “' + sel.slice(5) + '”'
-      : (sel.length > 46 ? sel.slice(0, 43) + '…' : sel);
+    const brief = /^(text|click-text):/.test(sel)
+      ? '“' + sel.replace(/^(text|click-text):/, '') + '”'
+      : sel.replace(/^click:/, '').slice(0, 43);
     toast('Saved ' + which + ' → ' + brief);
     /* return to the reader if we stepped out of it to pick */
     if (sessionStorage.getItem('flyleaf-resume') === '1') {
@@ -756,7 +859,7 @@
     pickBox = el('div', { id: 'flyleaf-pick-box' });
     pickTip = el('div', {
       id: 'flyleaf-pick-tip',
-      text: 'Click the “' + (which === 'prev' ? 'previous' : 'next') + ' chapter” link · Esc to cancel',
+      text: 'Click the “' + (which === 'prev' ? 'previous' : 'next') + ' chapter” link or button · Esc to cancel',
     });
     document.documentElement.appendChild(pickBox);
     document.documentElement.appendChild(pickTip);
@@ -795,46 +898,40 @@
     toast('Zoom ' + prefs.zoom + '%');
   }
 
-  document.addEventListener(
-    'keydown',
-    (e) => {
-      if (!reader || picking) return;
-      if (e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          e.stopPropagation();
-          if (nav.prev) {
-            toast('Loading previous chapter…', true);
-            location.href = nav.prev;
-          } else toast('No previous chapter');
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          e.stopPropagation();
-          if (nav.next) {
-            toast('Loading next chapter…', true);
-            location.href = nav.next;
-          } else toast('No next chapter');
-          break;
-        case 'Escape':
-          e.preventDefault();
-          setEnabled(false);
-          break;
-        case '-':
-        case '_':
-          e.preventDefault();
-          stepZoom(-1);
-          break;
-        case '+':
-        case '=':
-          e.preventDefault();
-          stepZoom(1);
-          break;
-      }
-    },
-    true
-  );
+  const KEY_ACTIONS = {
+    ArrowLeft: () => goPrev(),
+    ArrowRight: () => goNext(),
+    Escape: () => setEnabled(false),
+    '-': () => stepZoom(-1),
+    _: () => stepZoom(-1),
+    '+': () => stepZoom(1),
+    '=': () => stepZoom(1),
+  };
+  /* While the reader is up, Flyleaf is the sole driver of these keys. The
+     listener is on window in the capture phase, registered at
+     document_start (before the page's), and stopImmediatePropagation runs
+     on all three keyboard events (keydown/keypress/keyup) — the full set —
+     so a site that binds its own arrow-key nav (to any of them) can't also
+     navigate. We act on keydown; keypress/keyup are swallowed silently. */
+  const owns = (e) =>
+    (reader || navigating) && !picking && !e.ctrlKey && !e.metaKey && !e.altKey &&
+    !isTyping(e.target) && KEY_ACTIONS[e.key] !== undefined;
+
+  window.addEventListener('keydown', (e) => {
+    if (!owns(e)) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    KEY_ACTIONS[e.key]();
+  }, true);
+
+  /* suppress the site's handler on the other two events; take no action */
+  const swallow = (e) => {
+    if (!owns(e)) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  };
+  window.addEventListener('keypress', swallow, true);
+  window.addEventListener('keyup', swallow, true);
 
   /* ---------------- scroll progress ---------------- */
 
@@ -858,7 +955,9 @@
     if (location.href === lastHref) return;
     lastHref = location.href;
     if (reader) {
-      /* re-extract for the new chapter behind the curtain */
+      /* re-extract for the new chapter behind the curtain; fresh=true so
+         we wait for the extracted chapter to actually change (some sites
+         swap the visible chapter shortly after the URL does) */
       curtainOn();
       if (reader) reader.remove();
       if (progress) progress.remove();
@@ -866,32 +965,28 @@
       progress = null;
       document.documentElement.classList.remove('flyleaf-on');
       bodyWasRemoved = false;
-      autoOpen();
+      autoOpen(0, true);
     } else if (shouldAutoOpen()) {
       curtainOn();
       autoOpen();
     }
   }
-  const _push = history.pushState;
-  const _replace = history.replaceState;
-  history.pushState = function (...args) {
-    const r = _push.apply(this, args);
-    onNav();
-    return r;
-  };
-  history.replaceState = function (...args) {
-    const r = _replace.apply(this, args);
-    onNav();
-    return r;
-  };
+  /* A content script can't wrap the page's history.pushState (it runs in
+     an isolated world), so SPA URL changes wouldn't reach onNav. Poll
+     location.href instead — reliable regardless of how the site routes. */
   window.addEventListener('popstate', onNav);
+  setInterval(() => {
+    if (location.href !== lastHref) onNav();
+  }, 350);
 
   /* ---------------- boot ---------------- */
 
-  function autoOpen(tries = 0) {
-    if (openReader(true)) return; /* success — reader is up */
+  function autoOpen(tries = 0, fresh = false) {
+    /* wait up to ~3s for genuinely-new content after a chapter change,
+       then render whatever is there so the reader can never freeze */
+    if (openReader(true, fresh && tries < 10)) return;
     if (tries < 50) {
-      setTimeout(() => autoOpen(tries + 1), 300); /* ~15s of retries */
+      setTimeout(() => autoOpen(tries + 1, fresh), 300); /* ~15s of retries */
     } else {
       curtainOff(); /* genuinely no article here — reveal the site */
     }

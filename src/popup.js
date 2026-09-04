@@ -211,19 +211,25 @@ function render() {
         el('button', { class: 'fl-btn', text: 'Reset', title: 'Forget trained links, use auto-detection', onclick: async () => { await send({ type: 'flyleaf-reset-nav' }); refreshStatus(); } }),
       ])
     );
-    /* summarize a saved locator to one short line; full value on hover */
-    const summarize = (sel) => {
+    /* summarize a saved locator to one short line; full value on hover.
+       "click:"/"click-text:" locators are JS controls (buttons) rather
+       than links — shown with a "click" prefix. */
+    const summarize = (raw) => {
+      if (raw.startsWith('click-text:')) return 'click “' + raw.slice(11).slice(0, 18) + '”';
+      const clickable = raw.startsWith('click:');
+      const pre = clickable ? 'click ' : '';
+      const sel = clickable ? raw.slice(6) : raw;
       if (sel.startsWith('text:')) return '“' + sel.slice(5).slice(0, 22) + '”';
-      if (sel[0] === '#') return sel.split(/[ >]/)[0];               // id
+      if (sel[0] === '#') return pre + sel.split(/[ >]/)[0];          // id
       const relm = sel.match(/\[rel="?([^"\]]+)"?\]/);
-      if (relm) return 'rel=' + relm[1];
-      if (/:nth-child|^body /.test(sel)) return 'by position';        // path
-      const m = sel.match(/^([a-z]*)\.(.+)$/i);                       // tag.classes
+      if (relm) return pre + 'rel=' + relm[1];
+      if (/:nth-child|^body /.test(sel)) return pre + 'by position';   // path
+      const m = sel.match(/^([a-z]*)\.(.+)$/i);                        // tag.classes
       if (m) {
         const cls = m[2].split('.');
-        return (m[1] || '') + '.' + cls[0] + (cls.length > 1 ? ' +' + (cls.length - 1) : '');
+        return pre + (m[1] || '') + '.' + cls[0] + (cls.length > 1 ? ' +' + (cls.length - 1) : '');
       }
-      return sel.length > 24 ? sel.slice(0, 22) + '…' : sel;
+      return pre + (sel.length > 24 ? sel.slice(0, 22) + '…' : sel);
     };
     const line = (arrow, sel, found) => {
       const div = el('div', { class: 'fl-nav-line' });
