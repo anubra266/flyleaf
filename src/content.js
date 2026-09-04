@@ -372,10 +372,17 @@
   function splitChapter(full) {
     const s = (full || '').trim();
     const WORD = '(?:chapter|chap|ch|episode|ep|part|volume|vol)';
-    const only = s.match(new RegExp('^' + WORD + '\\.?\\s*([0-9]+(?:\\.[0-9]+)?)$', 'i'));
+    const CH = '(?:chapter|chap|ch|episode|ep)'; /* trailing: only true chapter words */
+    const NUM = '([0-9]+(?:\\.[0-9]+)?)';
+    /* "Chapter 178" alone */
+    const only = s.match(new RegExp('^' + WORD + '\\.?\\s*' + NUM + '$', 'i'));
     if (only) return { chapter: only[1], title: '' };
-    const m = s.match(new RegExp('^(?:' + WORD + '\\.?\\s*)?([0-9]+(?:\\.[0-9]+)?)\\s*[-:.)\\u2013\\u2014]+\\s*(.+)$', 'i'));
-    if (m && m[2]) return { chapter: m[1], title: m[2].trim() };
+    /* "Chapter 178 - Title" / "178: Title" */
+    const lead = s.match(new RegExp('^(?:' + WORD + '\\.?\\s*)?' + NUM + '\\s*[-:.)\\u2013\\u2014]+\\s*(.+)$', 'i'));
+    if (lead && lead[2]) return { chapter: lead[1], title: lead[2].trim() };
+    /* "Title ... Chapter 1" (chapter at the end) */
+    const tail = s.match(new RegExp('^(.+?)(?:\\s+|\\s*[-:.\\u2013\\u2014]\\s*)' + CH + '\\.?\\s*' + NUM + '$', 'i'));
+    if (tail && tail[1]) return { chapter: tail[2], title: tail[1].trim() };
     return { chapter: null, title: s };
   }
 

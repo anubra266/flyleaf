@@ -89,7 +89,7 @@ const FLYLEAF_CSS = `
 #flyleaf-reader .fl-c-chapter .fl-cell-value { color: var(--fl-muted); }
 
 #flyleaf-reader .fl-c-title .fl-title {
-  font-size: .92em; font-weight: 600; letter-spacing: -.01em; line-height: 1.35;
+  font-size: .7em; font-weight: 600; letter-spacing: .04em; line-height: 1.4;
   color: var(--fl-strong); margin: 0; text-align: right;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
