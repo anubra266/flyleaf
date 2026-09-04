@@ -128,11 +128,11 @@ Flyleaf is a general reader mode, so it must be able to run on whatever site the
 - ☑ I do not use or transfer user data for purposes unrelated to my item's single purpose
 - ☑ I do not use or transfer user data to determine creditworthiness or for lending
 
-**Privacy policy URL** — not required while you collect no data. If the form
-insists, this repo's README + the "PRIVACY" section above suffice; you can
-paste a one-line policy or point to:
+**Privacy policy URL** — REQUIRED. The store rejects a GitHub repo/README
+link ("owner sites are not considered valid"); it must point directly to a
+standalone privacy-policy page. Use:
 ```
-https://github.com/anubra266/flyleaf#privacy
+https://portfolio-anuoluwapo-abrahams-projects.vercel.app/privacy-policies/flyleaf.html
 ```
 
 ---
