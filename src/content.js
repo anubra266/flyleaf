@@ -165,8 +165,19 @@
   /* ---------------- extraction ---------------- */
 
   function pageHasContent() {
+    /* "has the chapter rendered yet?" — Readability does the real
+       extraction later; this just waits for enough text to exist. */
     let len = 0;
-    document.querySelectorAll('p').forEach((p) => (len += p.textContent.length));
+    for (const n of document.querySelectorAll('p, li')) len += n.textContent.length;
+    if (len >= MIN_TEXT) return true;
+    /* many MTL/translation sites (wtr-lab, …) render each line as its
+       own <div>, not a <p>. Count leaf text blocks too. */
+    for (const n of document.querySelectorAll('div')) {
+      if (n.children.length === 0) {
+        len += n.textContent.length;
+        if (len >= MIN_TEXT) return true;
+      }
+    }
     return len >= MIN_TEXT;
   }
 
