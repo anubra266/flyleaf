@@ -114,11 +114,6 @@ const FLYLEAF_CSS = css`
   #flyleaf-reader .fl-c-title { justify-content: flex-start; }
   #flyleaf-reader .fl-c-title .fl-title { text-align: left; }
 }
-#flyleaf-reader .fl-title {
-  font-size: 2em; font-weight: 700;
-  letter-spacing: -.03em; line-height: 1.15; color: var(--fl-strong);
-  margin: 0 0 1.3em;
-}
 
 #flyleaf-reader .fl-nav {
   display: flex; gap: 10px; justify-content: center; margin: 28px 0;
