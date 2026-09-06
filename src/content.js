@@ -702,9 +702,10 @@
   let pickBox = null;
   let pickTip = null;
 
-  function selectorFor(link) {
-    /* Build a selector that should survive across chapters. Prefer
-       stable signals; validate that it resolves to this link now. */
+  /* A stable id / rel / semantic-class selector that uniquely resolves to
+     this element now, or null. No structural :nth-child path — that lives
+     in pathSelector, so callers can prefer link text over a brittle path. */
+  function stableSelector(link) {
     const tag = link.localName; /* 'a' for links, 'button' for JS controls */
     const candidates = [];
     if (link.id) candidates.push('#' + CSS.escape(link.id));
@@ -729,12 +730,28 @@
     for (const sel of candidates) {
       if (sel.length > 80) continue;
       try {
-        if (document.querySelector(sel) === link) return sel;
+        /* require an UNAMBIGUOUS match: a selector that resolves to several
+           elements (e.g. ".nav a" for a "prev | toc | next" row) only works
+           by being first, and breaks when the layout shifts — prefer text
+           or a structural path over that. */
+        const m = document.querySelectorAll(sel);
+        if (m.length === 1 && m[0] === link) return sel;
       } catch {
         /* invalid selector — skip */
       }
     }
-    return pathSelector(link);
+    return null;
+  }
+  const selectorFor = (link) => stableSelector(link) || pathSelector(link);
+
+  /* would matching by exact text (as findNav does) land on THIS element?
+     i.e. is the link/button text an unambiguous locator for it */
+  function textResolvesTo(el, text, isLink) {
+    for (const n of document.querySelectorAll(isLink ? 'a[href]' : 'button, [role="button"], a')) {
+      if (!notFlyleaf(n)) continue;
+      if ((n.textContent || '').replace(/\s+/g, ' ').trim() === text) return n === el;
+    }
+    return false;
   }
 
   function pathSelector(link) {
@@ -806,15 +823,22 @@
     }
     const which = picking;
     const isLink = link.tagName === 'A' && /^https?:/i.test(link.href || '');
-    const cssSel = selectorFor(link);
-    const text = (link.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+    /* Prefer, in order: a stable id/rel/class selector → the exact link
+       text (survives when the nav layout shifts between chapters, e.g. a
+       first/last chapter with fewer links) → a structural path as a last
+       resort. Chapter-nav links like "Next Chapter" usually only have
+       stable TEXT, so text beats a brittle :nth-child path here. */
+    const stable = stableSelector(link);
+    const full = (link.textContent || '').replace(/\s+/g, ' ').trim();
+    const text = full.length && full.length <= 60 && textResolvesTo(link, full, isLink) ? full : null;
     let sel;
     if (isLink) {
-      /* link: CSS selector, else match by exact link text across chapters */
-      sel = cssSel || (text ? 'text:' + text : null);
+      sel = stable || (text ? 'text:' + text : pathSelector(link));
     } else {
-      /* button / JS control: click it on future chapters (prefix "click:") */
-      sel = cssSel ? 'click:' + cssSel : (text ? 'click-text:' + text : null);
+      /* button / JS control (prefix "click:" / "click-text:") */
+      if (stable) sel = 'click:' + stable;
+      else if (text) sel = 'click-text:' + text;
+      else { const p = pathSelector(link); sel = p ? 'click:' + p : null; }
     }
     stopPicking();
     if (!sel) {
