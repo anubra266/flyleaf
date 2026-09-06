@@ -15,8 +15,9 @@ page navigation, and per-site memory.
   link text) and handles button / JS controls, not just links. When a site
   defies detection, **pick the controls visually**: click "Pick next",
   click the site's own next button once, and Flyleaf remembers it.
-- **Themes & type** — theme swatches (Light / Sepia / Gray / Midnight),
-  a choice of reading fonts, Safari-style zoom, and line height.
+- **Themes & type** — a global theme (Light / Sepia / Gray / Midnight),
+  plus font, Safari-style zoom, and line height saved **per site** (each
+  site remembers how you like to read it).
 - **Per-site auto-enable** — turn Flyleaf on for a site once and it opens
   automatically on matching pages. Scope it with URL patterns (e.g.
   `/series/*/chapter-*`, comma-separated) so it stays off on the home page.

@@ -88,6 +88,15 @@
     await store.set('sites', sites);
   }
 
+  /* font / zoom / line-height are saved PER SITE (in sites[HOST]); theme is
+     global. The effective value for a site is its override, or the global
+     default when it has none. */
+  const SITE_PREF_KEYS = ['font', 'zoom', 'lh'];
+  const eff = (key) => {
+    const v = siteCfg()[key];
+    return v !== undefined ? v : prefs[key];
+  };
+
   /* ---------------- reading-page patterns ----------------
      Auto-open is gated on a glob over the URL path, not on "does this
      look like an article". The path is known at document_start, so the
@@ -263,6 +272,10 @@
 
   const norm = (u) => (u ? u.replace(/[#?].*$/, '').replace(/\/$/, '') : null);
   const notFlyleaf = (n) => !(n && n.closest && n.closest('[id^="flyleaf-"]'));
+  /* a disabled control (e.g. "Next" on the last chapter) is not a target —
+     clicking it does nothing, so it must not count as available nav */
+  const isDisabled = (el) =>
+    el.disabled === true || el.getAttribute('aria-disabled') === 'true';
 
   /* a live element -> nav target (or null) */
   function elementTarget(node) {
@@ -271,6 +284,7 @@
       return norm(node.href) === norm(location.href) ? null : { url: node.href };
     }
     if (node.matches && node.matches('button, [role="button"], [onclick]')) {
+      if (isDisabled(node)) return null;
       const sel = selectorFor(node);
       return sel ? { clickSel: sel } : null;
     }
@@ -289,7 +303,7 @@
   }
   function clickByText(want) {
     for (const b of document.querySelectorAll('button, [role="button"], a')) {
-      if (!notFlyleaf(b)) continue;
+      if (!notFlyleaf(b) || isDisabled(b)) continue;
       if ((b.textContent || '').replace(/\s+/g, ' ').trim() === want) {
         const sel = selectorFor(b);
         if (sel) return { clickSel: sel };
@@ -309,7 +323,7 @@
       if (!sel) return null;
       if (sel.startsWith('click-text:')) return clickByText(sel.slice(11));
       if (sel.startsWith('click:')) {
-        try { return document.querySelector(sel.slice(6)) ? { clickSel: sel.slice(6) } : null; }
+        try { const e = document.querySelector(sel.slice(6)); return e && !isDisabled(e) ? { clickSel: sel.slice(6) } : null; }
         catch { return null; }
       }
       if (sel.startsWith('text:')) return linkByText(sel.slice(5));
@@ -333,7 +347,7 @@
        avoid clicking a random "Next" (carousel, form step, pagination) */
     const clickByRe = (re) => {
       for (const b of document.querySelectorAll('button, [role="button"]')) {
-        if (!notFlyleaf(b)) continue;
+        if (!notFlyleaf(b) || isDisabled(b)) continue;
         const t = (b.textContent || '').replace(/\s+/g, ' ').trim();
         if (t && t.length < 24 && re.test(t)) { const sel = selectorFor(b); if (sel) return { clickSel: sel }; }
       }
@@ -369,7 +383,7 @@
     if (target.clickSel) {
       let elx = null;
       try { elx = document.querySelector(target.clickSel); } catch (e) {}
-      if (elx) { beginNav(); toast('Loading ' + label + '…', true); elx.click(); return true; }
+      if (elx && !isDisabled(elx)) { beginNav(); toast('Loading ' + label + '…', true); elx.click(); return true; }
     }
     return false;
   }
@@ -439,9 +453,9 @@
     st.setProperty('--fl-border-hi', t.borderHi);
     st.setProperty('--fl-chip', t.chip);
     st.setProperty('--fl-progress', t.progress);
-    st.setProperty('--fl-font', (FONTS[prefs.font] || FONTS.system).stack);
-    st.setProperty('--fl-zoom', (prefs.zoom / 100).toFixed(3));
-    st.setProperty('--fl-lh', String(prefs.lh));
+    st.setProperty('--fl-font', (FONTS[eff('font')] || FONTS.system).stack);
+    st.setProperty('--fl-zoom', (eff('zoom') / 100).toFixed(3));
+    st.setProperty('--fl-lh', String(eff('lh')));
   }
 
   /* a nav pill: a real <a> for links (middle-click / open-in-tab work),
@@ -867,13 +881,13 @@
   }
 
   function stepZoom(dir) {
-    let i = ZOOM_STEPS.indexOf(prefs.zoom);
+    let i = ZOOM_STEPS.indexOf(eff('zoom'));
     if (i === -1) i = ZOOM_STEPS.indexOf(100);
     i = Math.min(ZOOM_STEPS.length - 1, Math.max(0, i + dir));
-    prefs.zoom = ZOOM_STEPS[i];
+    const zoom = ZOOM_STEPS[i];
+    saveSite({ zoom }); /* per-site */
     applyPrefs();
-    store.set('prefs', prefs);
-    toast('Zoom ' + prefs.zoom + '%');
+    toast('Zoom ' + zoom + '%');
   }
 
   const KEY_ACTIONS = {
@@ -1004,6 +1018,10 @@
           path: location.pathname,
           suggest: seedPattern(),
           patternMatches: urlMatches(siteCfg().pattern),
+          /* effective per-site reading prefs (site override, else global) */
+          font: eff('font'),
+          zoom: eff('zoom'),
+          lh: eff('lh'),
         });
         break;
       }
@@ -1018,6 +1036,13 @@
         break;
       case 'flyleaf-set-pattern':
         saveSite({ pattern: typeof msg.pattern === 'string' ? msg.pattern.trim() : '' });
+        sendResponse({ ok: true });
+        break;
+      case 'flyleaf-set-site-pref':
+        if (SITE_PREF_KEYS.includes(msg.key)) {
+          saveSite({ [msg.key]: msg.value });
+          applyPrefs();
+        }
         sendResponse({ ok: true });
         break;
       case 'flyleaf-reset-nav':
@@ -1040,6 +1065,7 @@
     }
     if (changes.sites) {
       sites = changes.sites.newValue || {};
+      applyPrefs(); /* per-site font/zoom/lh may have changed */
       if (reader) refreshNavUi();
     }
   });

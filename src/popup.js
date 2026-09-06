@@ -78,6 +78,24 @@ async function send(msg) {
   }
 }
 
+/* font / zoom / line-height are saved PER SITE (theme stays global). Read
+   the effective value the content script reports for this site (its
+   override, else the global default) and save changes to the right place:
+   to the site when a content script answered, otherwise to the global
+   default. */
+function readingVal(key) {
+  return status && status[key] != null ? status[key] : prefs[key];
+}
+async function saveReading(key, value) {
+  if (status) {
+    status[key] = value; /* keep the popup's display in sync immediately */
+    await send({ type: 'flyleaf-set-site-pref', key, value });
+  } else {
+    prefs[key] = value;
+    await savePrefs();
+  }
+}
+
 function render() {
   const app = document.getElementById('app');
   app.replaceChildren();
@@ -98,42 +116,45 @@ function render() {
   }
   app.appendChild(sw);
 
+  /* the reading controls below are per-site when Flyleaf runs here */
+  if (status) {
+    app.appendChild(el('div', { class: 'fl-nav-line', text: 'Font, zoom & line height apply to ' + status.host }));
+  }
+
   /* font */
   app.appendChild(el('div', { class: 'fl-label', text: 'Font' }));
   const sel = el('select');
   for (const [key, label] of Object.entries(FONTS)) {
     const o = el('option', { value: key, text: label });
-    if (prefs.font === key) o.selected = true;
+    if (readingVal('font') === key) o.selected = true;
     sel.appendChild(o);
   }
-  sel.addEventListener('change', async () => { prefs.font = sel.value; await savePrefs(); });
+  sel.addEventListener('change', () => saveReading('font', sel.value));
   app.appendChild(sel);
 
   /* zoom (Safari-style) */
   app.appendChild(el('div', { class: 'fl-label', text: 'Zoom' }));
   const stepZoom = async (dir) => {
-    let i = ZOOM_STEPS.indexOf(prefs.zoom);
+    let i = ZOOM_STEPS.indexOf(readingVal('zoom'));
     if (i === -1) i = ZOOM_STEPS.indexOf(100);
     i = Math.min(ZOOM_STEPS.length - 1, Math.max(0, i + dir));
-    prefs.zoom = ZOOM_STEPS[i];
-    await savePrefs();
+    await saveReading('zoom', ZOOM_STEPS[i]);
     render();
   };
   app.appendChild(
     el('div', { class: 'fl-stepper' }, [
       el('button', { text: '−', onclick: () => stepZoom(-1) }),
-      el('div', { class: 'fl-val', text: prefs.zoom + '%' }),
+      el('div', { class: 'fl-val', text: readingVal('zoom') + '%' }),
       el('button', { text: '+', onclick: () => stepZoom(1) }),
     ])
   );
 
   /* line height */
-  app.appendChild(el('div', { class: 'fl-label', text: 'Line height — ' + prefs.lh.toFixed(2) }));
-  const lh = el('input', { type: 'range', min: 1.4, max: 2.3, step: 0.05, value: prefs.lh });
-  lh.addEventListener('input', async () => {
-    prefs.lh = parseFloat(lh.value);
-    await savePrefs();
-    lh.previousSibling.textContent = 'Line height — ' + prefs.lh.toFixed(2);
+  app.appendChild(el('div', { class: 'fl-label', text: 'Line height — ' + readingVal('lh').toFixed(2) }));
+  const lh = el('input', { type: 'range', min: 1.4, max: 2.3, step: 0.05, value: readingVal('lh') });
+  lh.addEventListener('input', () => {
+    saveReading('lh', parseFloat(lh.value));
+    lh.previousSibling.textContent = 'Line height — ' + parseFloat(lh.value).toFixed(2);
   });
   app.appendChild(lh);
 
