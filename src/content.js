@@ -552,20 +552,29 @@
     nav = findNav();
     ensureStyle();
 
-    const h1 = document.querySelector('h1');
-    const fullTitle =
-      article.title ||
-      (h1 && h1.textContent.trim()) ||
-      document.title.split(/[|\-–—]/)[0].trim();
-    const parts = splitChapter(fullTitle);
+    /* Two title sources: the meta title (article/document) usually carries
+       the STORY name, while the page's <h1> is often the chapter's own
+       "Chapter N: <chapter title>" heading. Show the story name + number in
+       the header grid, and the chapter's descriptive title as a headline
+       just before the article. */
+    const h1el = document.querySelector('h1');
+    const metaParts = splitChapter(article.title || document.title.split(/\s+[|–—]\s+/)[0]);
+    const h1Parts = h1el ? splitChapter(h1el.textContent.replace(/\s+/g, ' ').trim()) : { chapter: null, title: '' };
+    const chapter = metaParts.chapter || h1Parts.chapter;
+    let headerTitle = metaParts.title;
+    /* a distinct per-chapter title from the <h1> (a real chapter heading,
+       not the story name repeated) */
+    let chapterTitle = (h1Parts.chapter && h1Parts.title && h1Parts.title !== headerTitle) ? h1Parts.title : '';
+    if (!headerTitle && chapterTitle) { headerTitle = chapterTitle; chapterTitle = ''; }
+
+    const page = [headGrid(chapter, headerTitle)];
+    if (chapterTitle) page.push(el('h1', { class: 'fl-chapter-title', text: chapterTitle }));
+    page.push(el('div', { id: 'flyleaf-body' }, [article.node]));
+    page.push(navBar());
 
     reader = el('div', { id: 'flyleaf-reader' }, [
       el('div', { id: 'flyleaf-sheet' }, [
-        el('div', { id: 'flyleaf-page' }, [
-          headGrid(parts.chapter, parts.title),
-          el('div', { id: 'flyleaf-body' }, [article.node]),
-          navBar(),
-        ]),
+        el('div', { id: 'flyleaf-page' }, page),
       ]),
     ]);
     progress = el('div', { id: 'flyleaf-progress' });

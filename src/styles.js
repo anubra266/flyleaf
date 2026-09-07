@@ -115,6 +115,12 @@ const FLYLEAF_CSS = css`
   #flyleaf-reader .fl-c-title .fl-title { text-align: left; }
 }
 
+/* the chapter's own title, as a headline just before the article */
+#flyleaf-reader .fl-chapter-title {
+  font-size: 1.55em; font-weight: 700; letter-spacing: -.02em; line-height: 1.2;
+  color: var(--fl-strong); margin: .2em 0 1.3em;
+}
+
 #flyleaf-reader .fl-nav {
   display: flex; gap: 10px; justify-content: center; margin: 28px 0;
 }
