@@ -314,6 +314,12 @@
 
   const PREV_RE = /^(<|«|‹|←)?\s*prev(ious)?(\s*(chapter|post|page))?\s*$/i;
   const NEXT_RE = /^\s*next(\s*(chapter|post|page))?\s*(>|»|›|→)?\s*$/i;
+  /* labels REQUIRE a content qualifier (chapter/post/page/episode): these
+     match a visible "Previous Chapter" / "Next Post" heading placed beside
+     the link (not in it), which is a strong "this is content navigation"
+     signal — far safer than a bare "Next". */
+  const PREV_LABEL = /^(?:«|‹|←)?\s*prev(?:ious)?\s+(?:chapter|post|page|episode)s?\s*$/i;
+  const NEXT_LABEL = /^\s*next\s+(?:chapter|post|page|episode)s?\s*(?:»|›|→)?\s*$/i;
 
   function findNav() {
     const cfg = siteCfg();
@@ -353,18 +359,42 @@
       }
       return null;
     };
+    /* Themes (WordPress/tagDiv, …) that put a "Previous Chapter" / "Next
+       Chapter" LABEL beside the link — not in it, and with no rel/nav
+       class — so nothing above finds it. Match the label element (which
+       must not itself contain a link), then take the SINGLE link in its
+       smallest enclosing block. Requires the content qualifier and a lone
+       link, so it won't grab a stray "Next" widget. */
+    const byLabel = (re) => {
+      for (const label of document.querySelectorAll('span, strong, b, em, small, h1, h2, h3, h4, h5, h6')) {
+        if (!notFlyleaf(label) || label.querySelector('a[href]')) continue;
+        const t = (label.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!t || t.length > 22 || !re.test(t)) continue;
+        let block = label.parentElement;
+        for (let d = 0; d < 3 && block; d++) {
+          const links = [...block.querySelectorAll('a[href]')].filter((a) => notFlyleaf(a) && !isDisabled(a));
+          if (links.length === 1) { const x = elementTarget(links[0]); if (x) return x; }
+          if (links.length > 1) break; /* ambiguous block — don't guess */
+          block = block.parentElement;
+        }
+      }
+      return null;
+    };
 
     return {
-      /* user-trained locator first, then links, then JS controls */
+      /* user-trained locator first, then links, then labeled blocks, then
+         JS controls */
       prev:
         fromSaved(cfg.prevSel) ||
         bySelectors(['a[rel~="prev"]', '.nav-previous a', 'a.nav-previous', 'a.prev_page', 'a.chnav.prev']) ||
         linkByRe(PREV_RE) || linkByRe(/prev(ious)?\s*chapter/i) ||
+        byLabel(PREV_LABEL) ||
         clickByRe(PREV_RE),
       next:
         fromSaved(cfg.nextSel) ||
         bySelectors(['a[rel~="next"]', '.nav-next a', 'a.nav-next', 'a.next_page', 'a.chnav.next']) ||
         linkByRe(NEXT_RE) || linkByRe(/next\s*chapter/i) ||
+        byLabel(NEXT_LABEL) ||
         clickByRe(NEXT_RE),
     };
   }
