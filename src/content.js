@@ -711,43 +711,47 @@
   let pickBox = null;
   let pickTip = null;
 
-  /* A stable id / rel / semantic-class selector that uniquely resolves to
-     this element now, or null. No structural :nth-child path — that lives
-     in pathSelector, so callers can prefer link text over a brittle path. */
+  /* A stable id / rel / class selector that resolves to EXACTLY this
+     element now, or null. Considers the element's own signals AND a
+     distinctive ancestor class (e.g. links classed only by chapter title
+     but wrapped in a ".tdb-post-next" container). No structural :nth-child
+     path — that lives in pathSelector, so callers can prefer link text
+     over a brittle path. */
   function stableSelector(link) {
     const tag = link.localName; /* 'a' for links, 'button' for JS controls */
-    const candidates = [];
-    if (link.id) candidates.push('#' + CSS.escape(link.id));
-    const rel = link.getAttribute('rel');
-    if (rel) candidates.push(tag + '[rel="' + CSS.escape(rel) + '"]');
-    /* class candidates must be SEMANTIC, not utility soup: Tailwind
-       variant classes (disabled:opacity-50, [&_svg]:size-4, …) are
-       unique-but-meaningless and produce monster selectors. Keep only
-       plain word-like classes, at most three, and cap total length. */
+    /* SEMANTIC classes only, not utility soup: Tailwind variant classes
+       (disabled:opacity-50, [&_svg]:size-4, …) are unique-but-meaningless */
     const semantic = (c) => /^[a-z][\w-]*$/i.test(c) && !/^(active|current|\d)/i.test(c);
-    const classes = [...link.classList].filter(semantic).slice(0, 3);
-    if (classes.length) {
-      candidates.push(tag + '.' + classes.map((c) => CSS.escape(c)).join('.'));
+    const uniq = (sel) => {
+      if (!sel || sel.length > 80) return false;
+      /* an UNAMBIGUOUS match only: a selector matching several elements
+         (".nav a" over "prev | toc | next") just works by being first and
+         breaks when the layout shifts */
+      try { const m = document.querySelectorAll(sel); return m.length === 1 && m[0] === link; }
+      catch { return false; }
+    };
+
+    /* 1. the element's own signals */
+    if (link.id && uniq('#' + CSS.escape(link.id))) return '#' + CSS.escape(link.id);
+    const rel = link.getAttribute('rel');
+    if (rel && uniq(tag + '[rel="' + CSS.escape(rel) + '"]')) return tag + '[rel="' + CSS.escape(rel) + '"]';
+    const own = [...link.classList].filter(semantic).slice(0, 3);
+    if (own.length && uniq(tag + '.' + own.map((c) => CSS.escape(c)).join('.'))) {
+      return tag + '.' + own.map((c) => CSS.escape(c)).join('.');
     }
-    const parent = link.parentElement;
-    if (parent) {
-      const pc = [...parent.classList].filter(semantic).slice(0, 2);
-      if (pc.length) {
-        candidates.push('.' + pc.map((c) => CSS.escape(c)).join('.') + ' ' + tag);
+
+    /* 2. scope by a distinctive ancestor class — ".tdb-post-next a".
+       Climb a few levels; per ancestor try each class alone (cleanest),
+       then a pair, taking the first that uniquely resolves. */
+    let node = link.parentElement;
+    for (let depth = 0; depth < 4 && node && node !== document.body; depth++) {
+      const cls = [...node.classList].filter(semantic);
+      const combos = [...cls.map((c) => [c]), ...(cls.length > 1 ? [cls.slice(0, 2)] : [])];
+      for (const combo of combos) {
+        const sel = '.' + combo.map((c) => CSS.escape(c)).join('.') + ' ' + tag;
+        if (uniq(sel)) return sel;
       }
-    }
-    for (const sel of candidates) {
-      if (sel.length > 80) continue;
-      try {
-        /* require an UNAMBIGUOUS match: a selector that resolves to several
-           elements (e.g. ".nav a" for a "prev | toc | next" row) only works
-           by being first, and breaks when the layout shifts — prefer text
-           or a structural path over that. */
-        const m = document.querySelectorAll(sel);
-        if (m.length === 1 && m[0] === link) return sel;
-      } catch {
-        /* invalid selector — skip */
-      }
+      node = node.parentElement;
     }
     return null;
   }
