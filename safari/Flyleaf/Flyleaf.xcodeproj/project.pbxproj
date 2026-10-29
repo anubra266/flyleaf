@@ -1,0 +1,985 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		17D8C06A3092B99700666262 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D8C0693092B99700666262 /* AppDelegate.swift */; };
+		17D8C06C3092B99700666262 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D8C06B3092B99700666262 /* SceneDelegate.swift */; };
+		17D8C06F3092B99700666262 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C06D3092B99700666262 /* LaunchScreen.storyboard */; };
+		17D8C0723092B99700666262 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0703092B99700666262 /* Main.storyboard */; };
+		17D8C07B3092B99700666262 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D8C07A3092B99700666262 /* AppDelegate.swift */; };
+		17D8C07E3092B99700666262 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C07C3092B99700666262 /* Main.storyboard */; };
+		17D8C0853092B99700666262 /* Flyleaf Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 17D8C0843092B99700666262 /* Flyleaf Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		17D8C08F3092B99700666262 /* Flyleaf Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 17D8C08E3092B99700666262 /* Flyleaf Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		17D8C0943092B99700666262 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0593092B99600666262 /* Main.html */; };
+		17D8C0953092B99700666262 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0593092B99600666262 /* Main.html */; };
+		17D8C0963092B99700666262 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05B3092B99600666262 /* Icon.png */; };
+		17D8C0973092B99700666262 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05B3092B99600666262 /* Icon.png */; };
+		17D8C0983092B99700666262 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05C3092B99600666262 /* Style.css */; };
+		17D8C0993092B99700666262 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05C3092B99600666262 /* Style.css */; };
+		17D8C09A3092B99700666262 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05D3092B99600666262 /* Script.js */; };
+		17D8C09B3092B99700666262 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05D3092B99600666262 /* Script.js */; };
+		17D8C09C3092B99700666262 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D8C05E3092B99600666262 /* ViewController.swift */; };
+		17D8C09D3092B99700666262 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D8C05E3092B99600666262 /* ViewController.swift */; };
+		17D8C09E3092B99700666262 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05F3092B99700666262 /* Assets.xcassets */; };
+		17D8C09F3092B99700666262 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C05F3092B99700666262 /* Assets.xcassets */; };
+		17D8C0A03092B99700666262 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D8C0613092B99700666262 /* SafariWebExtensionHandler.swift */; };
+		17D8C0A13092B99700666262 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D8C0613092B99700666262 /* SafariWebExtensionHandler.swift */; };
+		17D8C0BF3092B99800666262 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0B63092B99800666262 /* icons */; };
+		17D8C0C13092B99800666262 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0B83092B99800666262 /* manifest.json */; };
+		17D8C0C23092B99800666262 /* vendor in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0B93092B99800666262 /* vendor */; };
+		17D8C0C43092B99800666262 /* src in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0BB3092B99800666262 /* src */; };
+		17D8C0C83092B99800666262 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0B63092B99800666262 /* icons */; };
+		17D8C0CA3092B99800666262 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0B83092B99800666262 /* manifest.json */; };
+		17D8C0CB3092B99800666262 /* vendor in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0B93092B99800666262 /* vendor */; };
+		17D8C0CD3092B99800666262 /* src in Resources */ = {isa = PBXBuildFile; fileRef = 17D8C0BB3092B99800666262 /* src */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		17D8C0863092B99700666262 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 17D8C0533092B99600666262 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 17D8C0833092B99700666262;
+			remoteInfo = "Flyleaf Extension (iOS)";
+		};
+		17D8C0903092B99700666262 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 17D8C0533092B99600666262 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 17D8C08D3092B99700666262;
+			remoteInfo = "Flyleaf Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		17D8C0A73092B99700666262 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				17D8C0853092B99700666262 /* Flyleaf Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C0AE3092B99700666262 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				17D8C08F3092B99700666262 /* Flyleaf Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		17D8C05A3092B99600666262 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		17D8C05B3092B99600666262 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		17D8C05C3092B99600666262 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		17D8C05D3092B99600666262 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		17D8C05E3092B99600666262 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		17D8C05F3092B99700666262 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		17D8C0613092B99700666262 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		17D8C0663092B99700666262 /* Flyleaf.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Flyleaf.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D8C0693092B99700666262 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		17D8C06B3092B99700666262 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		17D8C06E3092B99700666262 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		17D8C0713092B99700666262 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		17D8C0733092B99700666262 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		17D8C0783092B99700666262 /* Flyleaf.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Flyleaf.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D8C07A3092B99700666262 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		17D8C07D3092B99700666262 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		17D8C07F3092B99700666262 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		17D8C0843092B99700666262 /* Flyleaf Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Flyleaf Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D8C0893092B99700666262 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		17D8C08E3092B99700666262 /* Flyleaf Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Flyleaf Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		17D8C0933092B99700666262 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		17D8C0B63092B99800666262 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = ../../../icons; sourceTree = "<group>"; };
+		17D8C0B83092B99800666262 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../manifest.json; sourceTree = "<group>"; };
+		17D8C0B93092B99800666262 /* vendor */ = {isa = PBXFileReference; lastKnownFileType = folder; name = vendor; path = ../../../vendor; sourceTree = "<group>"; };
+		17D8C0BB3092B99800666262 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		17D8C0633092B99700666262 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C0753092B99700666262 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C0813092B99700666262 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C08B3092B99700666262 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		17D8C0523092B99600666262 = {
+			isa = PBXGroup;
+			children = (
+				17D8C0573092B99600666262 /* Shared (App) */,
+				17D8C0603092B99700666262 /* Shared (Extension) */,
+				17D8C0683092B99700666262 /* iOS (App) */,
+				17D8C0793092B99700666262 /* macOS (App) */,
+				17D8C0883092B99700666262 /* iOS (Extension) */,
+				17D8C0923092B99700666262 /* macOS (Extension) */,
+				17D8C0673092B99700666262 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		17D8C0573092B99600666262 /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C05E3092B99600666262 /* ViewController.swift */,
+				17D8C05F3092B99700666262 /* Assets.xcassets */,
+				17D8C0583092B99600666262 /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		17D8C0583092B99600666262 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C0593092B99600666262 /* Main.html */,
+				17D8C05B3092B99600666262 /* Icon.png */,
+				17D8C05C3092B99600666262 /* Style.css */,
+				17D8C05D3092B99600666262 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		17D8C0603092B99700666262 /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C0B23092B99800666262 /* Resources */,
+				17D8C0613092B99700666262 /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		17D8C0673092B99700666262 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C0663092B99700666262 /* Flyleaf.app */,
+				17D8C0783092B99700666262 /* Flyleaf.app */,
+				17D8C0843092B99700666262 /* Flyleaf Extension.appex */,
+				17D8C08E3092B99700666262 /* Flyleaf Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		17D8C0683092B99700666262 /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C0693092B99700666262 /* AppDelegate.swift */,
+				17D8C06B3092B99700666262 /* SceneDelegate.swift */,
+				17D8C06D3092B99700666262 /* LaunchScreen.storyboard */,
+				17D8C0703092B99700666262 /* Main.storyboard */,
+				17D8C0733092B99700666262 /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		17D8C0793092B99700666262 /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C07A3092B99700666262 /* AppDelegate.swift */,
+				17D8C07C3092B99700666262 /* Main.storyboard */,
+				17D8C07F3092B99700666262 /* Info.plist */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		17D8C0883092B99700666262 /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C0893092B99700666262 /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		17D8C0923092B99700666262 /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C0933092B99700666262 /* Info.plist */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		17D8C0B23092B99800666262 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				17D8C0B63092B99800666262 /* icons */,
+				17D8C0B83092B99800666262 /* manifest.json */,
+				17D8C0B93092B99800666262 /* vendor */,
+				17D8C0BB3092B99800666262 /* src */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		17D8C0653092B99700666262 /* Flyleaf (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D8C0A83092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf (iOS)" */;
+			buildPhases = (
+				17D8C0623092B99700666262 /* Sources */,
+				17D8C0633092B99700666262 /* Frameworks */,
+				17D8C0643092B99700666262 /* Resources */,
+				17D8C0A73092B99700666262 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				17D8C0873092B99700666262 /* PBXTargetDependency */,
+			);
+			name = "Flyleaf (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "Flyleaf (iOS)";
+			productReference = 17D8C0663092B99700666262 /* Flyleaf.app */;
+			productType = "com.apple.product-type.application";
+		};
+		17D8C0773092B99700666262 /* Flyleaf (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D8C0AF3092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf (macOS)" */;
+			buildPhases = (
+				17D8C0743092B99700666262 /* Sources */,
+				17D8C0753092B99700666262 /* Frameworks */,
+				17D8C0763092B99700666262 /* Resources */,
+				17D8C0AE3092B99700666262 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				17D8C0913092B99700666262 /* PBXTargetDependency */,
+			);
+			name = "Flyleaf (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "Flyleaf (macOS)";
+			productReference = 17D8C0783092B99700666262 /* Flyleaf.app */;
+			productType = "com.apple.product-type.application";
+		};
+		17D8C0833092B99700666262 /* Flyleaf Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D8C0A43092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf Extension (iOS)" */;
+			buildPhases = (
+				17D8C0803092B99700666262 /* Sources */,
+				17D8C0813092B99700666262 /* Frameworks */,
+				17D8C0823092B99700666262 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Flyleaf Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "Flyleaf Extension (iOS)";
+			productReference = 17D8C0843092B99700666262 /* Flyleaf Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		17D8C08D3092B99700666262 /* Flyleaf Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17D8C0AB3092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf Extension (macOS)" */;
+			buildPhases = (
+				17D8C08A3092B99700666262 /* Sources */,
+				17D8C08B3092B99700666262 /* Frameworks */,
+				17D8C08C3092B99700666262 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Flyleaf Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "Flyleaf Extension (macOS)";
+			productReference = 17D8C08E3092B99700666262 /* Flyleaf Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		17D8C0533092B99600666262 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					17D8C0653092B99700666262 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					17D8C0773092B99700666262 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					17D8C0833092B99700666262 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					17D8C08D3092B99700666262 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+				};
+			};
+			buildConfigurationList = 17D8C0563092B99600666262 /* Build configuration list for PBXProject "Flyleaf" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 17D8C0523092B99600666262;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 17D8C0673092B99700666262 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				17D8C0653092B99700666262 /* Flyleaf (iOS) */,
+				17D8C0773092B99700666262 /* Flyleaf (macOS) */,
+				17D8C0833092B99700666262 /* Flyleaf Extension (iOS) */,
+				17D8C08D3092B99700666262 /* Flyleaf Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		17D8C0643092B99700666262 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C0963092B99700666262 /* Icon.png in Resources */,
+				17D8C06F3092B99700666262 /* LaunchScreen.storyboard in Resources */,
+				17D8C0943092B99700666262 /* Main.html in Resources */,
+				17D8C09A3092B99700666262 /* Script.js in Resources */,
+				17D8C09E3092B99700666262 /* Assets.xcassets in Resources */,
+				17D8C0723092B99700666262 /* Main.storyboard in Resources */,
+				17D8C0983092B99700666262 /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C0763092B99700666262 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C0973092B99700666262 /* Icon.png in Resources */,
+				17D8C0993092B99700666262 /* Style.css in Resources */,
+				17D8C07E3092B99700666262 /* Main.storyboard in Resources */,
+				17D8C09B3092B99700666262 /* Script.js in Resources */,
+				17D8C09F3092B99700666262 /* Assets.xcassets in Resources */,
+				17D8C0953092B99700666262 /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C0823092B99700666262 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C0CD3092B99800666262 /* src in Resources */,
+				17D8C0CB3092B99800666262 /* vendor in Resources */,
+				17D8C0C83092B99800666262 /* icons in Resources */,
+				17D8C0CA3092B99800666262 /* manifest.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C08C3092B99700666262 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C0C43092B99800666262 /* src in Resources */,
+				17D8C0C23092B99800666262 /* vendor in Resources */,
+				17D8C0BF3092B99800666262 /* icons in Resources */,
+				17D8C0C13092B99800666262 /* manifest.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		17D8C0623092B99700666262 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C09C3092B99700666262 /* ViewController.swift in Sources */,
+				17D8C06A3092B99700666262 /* AppDelegate.swift in Sources */,
+				17D8C06C3092B99700666262 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C0743092B99700666262 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C09D3092B99700666262 /* ViewController.swift in Sources */,
+				17D8C07B3092B99700666262 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C0803092B99700666262 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C0A03092B99700666262 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		17D8C08A3092B99700666262 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17D8C0A13092B99700666262 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		17D8C0873092B99700666262 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 17D8C0833092B99700666262 /* Flyleaf Extension (iOS) */;
+			targetProxy = 17D8C0863092B99700666262 /* PBXContainerItemProxy */;
+		};
+		17D8C0913092B99700666262 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 17D8C08D3092B99700666262 /* Flyleaf Extension (macOS) */;
+			targetProxy = 17D8C0903092B99700666262 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		17D8C0593092B99600666262 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				17D8C05A3092B99600666262 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		17D8C06D3092B99700666262 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				17D8C06E3092B99700666262 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		17D8C0703092B99700666262 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				17D8C0713092B99700666262 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		17D8C07C3092B99700666262 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				17D8C07D3092B99700666262 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		17D8C0A23092B99700666262 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		17D8C0A33092B99700666262 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		17D8C0A53092B99700666262 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6FH7HSN9S2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Flyleaf Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf.Extension;
+				PRODUCT_NAME = "Flyleaf Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		17D8C0A63092B99700666262 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6FH7HSN9S2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Flyleaf Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf.Extension;
+				PRODUCT_NAME = "Flyleaf Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		17D8C0A93092B99700666262 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6FH7HSN9S2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Flyleaf;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf;
+				PRODUCT_NAME = Flyleaf;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		17D8C0AA3092B99700666262 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6FH7HSN9S2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Flyleaf;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf;
+				PRODUCT_NAME = Flyleaf;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		17D8C0AC3092B99700666262 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Flyleaf Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf.Extension;
+				PRODUCT_NAME = "Flyleaf Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		17D8C0AD3092B99700666262 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Flyleaf Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf.Extension;
+				PRODUCT_NAME = "Flyleaf Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		17D8C0B03092B99700666262 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Flyleaf;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf;
+				PRODUCT_NAME = Flyleaf;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		17D8C0B13092B99700666262 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Flyleaf;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.anubra266.flyleaf;
+				PRODUCT_NAME = Flyleaf;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		17D8C0563092B99600666262 /* Build configuration list for PBXProject "Flyleaf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D8C0A23092B99700666262 /* Debug */,
+				17D8C0A33092B99700666262 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D8C0A43092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D8C0A53092B99700666262 /* Debug */,
+				17D8C0A63092B99700666262 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D8C0A83092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D8C0A93092B99700666262 /* Debug */,
+				17D8C0AA3092B99700666262 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D8C0AB3092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D8C0AC3092B99700666262 /* Debug */,
+				17D8C0AD3092B99700666262 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		17D8C0AF3092B99700666262 /* Build configuration list for PBXNativeTarget "Flyleaf (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17D8C0B03092B99700666262 /* Debug */,
+				17D8C0B13092B99700666262 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 17D8C0533092B99600666262 /* Project object */;
+}
