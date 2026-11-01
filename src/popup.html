@@ -2,11 +2,22 @@
 <html>
 <head>
 <meta charset="utf-8">
+<!-- the popup is always dark: render native controls (select, range) dark to match -->
+<meta name="color-scheme" content="dark">
 <style>
   body {
     width: 300px; margin: 0; padding: 16px;
     background: #0c0c0c; color: #ededed;
     font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  /* iOS Safari shows the popup as a full-width sheet: fill it, and give
+     controls finger-sized hit areas */
+  @media (pointer: coarse) {
+    body { width: auto; padding: 20px; }
+    .fl-swatch { width: 34px; height: 34px; }
+    select, .fl-input, .fl-stepper button, .fl-btn { padding-top: 12px; padding-bottom: 12px; font-size: 15px; }
+    .fl-primary { padding: 14px 0; font-size: 15px; }
+    .fl-nav-line { white-space: normal; }
   }
   .fl-label {
     font-size: 11px; font-weight: 600; letter-spacing: .06em;

@@ -822,6 +822,10 @@
     return null;
   }
 
+  const isTouch = () => {
+    try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; }
+  };
+
   const PICKABLE = 'a[href], button, [role="button"], [onclick]';
   function resolvePickTarget(target) {
     return (
@@ -838,6 +842,7 @@
     pickBox = null;
     pickTip = null;
     document.removeEventListener('mousemove', onPickMove, true);
+    document.removeEventListener('pointerdown', onPickMove, true);
     document.removeEventListener('click', onPickClick, true);
     document.removeEventListener('keydown', onPickKey, true);
   }
@@ -859,9 +864,14 @@
   async function onPickClick(e) {
     e.preventDefault();
     e.stopPropagation();
+    if (e.target.closest && e.target.closest('#flyleaf-pick-tip')) {
+      stopPicking();
+      toast('Pick cancelled');
+      return;
+    }
     const link = resolvePickTarget(e.target);
     if (!link) {
-      toast('Nothing clickable there — click the ' + picking + ' control');
+      toast('Nothing clickable there — ' + (isTouch() ? 'tap' : 'click') + ' the ' + picking + ' control');
       return;
     }
     const which = picking;
@@ -916,13 +926,16 @@
     if (reader) closeReaderKeepPrefs();
     picking = which;
     pickBox = el('div', { id: 'flyleaf-pick-box' });
-    pickTip = el('div', {
-      id: 'flyleaf-pick-tip',
-      text: 'Click the “' + (which === 'prev' ? 'previous' : 'next') + ' chapter” link or button · Esc to cancel',
-    });
+    const what = '“' + (which === 'prev' ? 'previous' : 'next') + ' chapter” link or button';
+    pickTip = el('div', { id: 'flyleaf-pick-tip' }, [
+      el('span', { text: isTouch() ? 'Tap the ' + what : 'Click the ' + what + ' · Esc to cancel' }),
+      el('button', { type: 'button', class: 'fl-pick-cancel', text: 'Cancel' }),
+    ]);
     document.documentElement.appendChild(pickBox);
     document.documentElement.appendChild(pickTip);
     document.addEventListener('mousemove', onPickMove, true);
+    /* no hover on touch screens: show the highlight where the finger lands */
+    document.addEventListener('pointerdown', onPickMove, true);
     document.addEventListener('click', onPickClick, true);
     document.addEventListener('keydown', onPickKey, true);
   }
@@ -991,6 +1004,53 @@
   };
   window.addEventListener('keypress', swallow, true);
   window.addEventListener('keyup', swallow, true);
+
+  /* ---------------- touch ---------------- */
+
+  /* Swipe left / right for next / previous on touch screens (iOS Safari).
+     Only a quick, clearly horizontal, single-finger swipe counts, so
+     vertical scrolling and text selection are untouched. Swipes starting
+     at the screen edge belong to the browser's own back/forward gesture,
+     and swipes inside horizontally scrollable content (wide tables, code)
+     scroll that content instead. */
+  const SWIPE = { minDx: 70, ratio: 2, maxMs: 600, edge: 24 };
+  let swipe = null;
+
+  function scrollsSideways(node) {
+    for (let n = node; n && n.id !== 'flyleaf-body'; n = n.parentElement) {
+      if (n.scrollWidth > n.clientWidth + 1) {
+        const ox = getComputedStyle(n).overflowX;
+        if (ox === 'auto' || ox === 'scroll') return true;
+      }
+    }
+    return false;
+  }
+
+  window.addEventListener('touchstart', (e) => {
+    swipe = null;
+    if (!reader || navigating || picking || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    if (t.clientX < SWIPE.edge || t.clientX > window.innerWidth - SWIPE.edge) return;
+    if (!reader.contains(e.target) || scrollsSideways(e.target)) return;
+    swipe = { x: t.clientX, y: t.clientY, at: Date.now() };
+  }, { passive: true, capture: true });
+
+  window.addEventListener('touchend', (e) => {
+    const s = swipe;
+    swipe = null;
+    if (!s || !reader || e.changedTouches.length !== 1) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x;
+    const dy = t.clientY - s.y;
+    if (Date.now() - s.at > SWIPE.maxMs) return;
+    if (Math.abs(dx) < SWIPE.minDx || Math.abs(dx) < Math.abs(dy) * SWIPE.ratio) return;
+    const sel = window.getSelection && window.getSelection();
+    if (sel && !sel.isCollapsed) return; /* finger was dragging a selection */
+    if (dx < 0) goNext();
+    else goPrev();
+  }, { passive: true, capture: true });
+
+  window.addEventListener('touchcancel', () => { swipe = null; }, { passive: true, capture: true });
 
   /* ---------------- scroll progress ---------------- */
 

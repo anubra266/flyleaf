@@ -148,6 +148,12 @@ const FLYLEAF_CSS = css`
   border-left: 2px solid var(--fl-border-hi); background: var(--fl-chip);
   border-radius: 0 10px 10px 0; margin: 1.8em 0; padding: 14px 20px; color: var(--fl-muted);
 }
+/* wide tables and code scroll inside their own box instead of widening
+   the whole page (Readability drops the site's overflow wrappers) */
+#flyleaf-body table, #flyleaf-body pre {
+  display: block; max-width: 100%; overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 #flyleaf-body ::selection { background: var(--fl-strong); color: var(--fl-bg); }
 
 /* progress bar */
@@ -178,6 +184,11 @@ const FLYLEAF_CSS = css`
   transform: translateX(-50%);
   background: #111; border: 1px solid #2e2e2e; border-radius: 999px;
   color: #ededed; font: 13px -apple-system, system-ui, sans-serif;
-  padding: 9px 18px; pointer-events: none; white-space: nowrap;
+  padding: 7px 7px 7px 18px; display: flex; align-items: center; gap: 12px;
+  width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box;
+}
+#flyleaf-pick-tip .fl-pick-cancel {
+  flex: none; background: #2a2a2a; border: 0; border-radius: 999px;
+  color: #ededed; font: inherit; padding: 6px 14px; cursor: pointer;
 }
 `;

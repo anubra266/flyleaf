@@ -33,6 +33,24 @@ page navigation, and per-site memory.
 2. **Load unpacked** → select this directory
 3. Open a page and press `Alt+R`, or click the Flyleaf icon → **Enable Reader**
 
+## Safari (iPhone, iPad, Mac)
+
+`safari/Flyleaf/Flyleaf.xcodeproj` wraps the same extension files (it
+references `manifest.json`, `src`, `vendor` and `icons` in place — no
+copies), so there is one codebase for Chrome and Safari.
+
+1. Open the project in Xcode, pick the **Flyleaf (iOS)** or
+   **Flyleaf (macOS)** scheme, set your team under *Signing & Capabilities*,
+   and run.
+2. iOS: **Settings → Apps → Safari → Extensions → Flyleaf** → turn it on
+   and allow it on all websites. macOS: Safari → Settings → Extensions.
+3. In Safari, tap the **ᴀA** / puzzle icon → Flyleaf → **Enable Reader**.
+
+On touch screens, swipe left / right for the next / previous chapter, and
+the picker works by tapping (with a Cancel button instead of `Esc`).
+iOS has no keyboard shortcuts, so toggle from the popup or use per-site
+auto-enable.
+
 ## In the reader
 
 | Key | Action |
@@ -40,6 +58,7 @@ page navigation, and per-site memory.
 | `←` / `→` | previous / next page |
 | `−` / `+` | zoom |
 | `Esc` | exit reader |
+| swipe ← / → | next / previous page (touch) |
 
 ## Engineering notes
 
@@ -77,6 +96,7 @@ src/styles.js         all injected CSS (scoped under #flyleaf-*)
 src/popup.html+js     the settings popup (theme, font, zoom, nav training)
 src/content.js        extraction, rendering, picker, keys, SPA polling
 vendor/Readability.js Mozilla Readability (Apache-2.0), unmodified
+safari/Flyleaf/       Xcode wrapper app for Safari (iOS + macOS)
 ```
 
 ## Roadmap

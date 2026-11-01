@@ -283,7 +283,9 @@ function render() {
   app.appendChild(
     el('div', {
       class: 'fl-hint',
-      html: 'In reader: <kbd>←</kbd> <kbd>→</kbd> chapters · <kbd>−</kbd>/<kbd>+</kbd> zoom · <kbd>Esc</kbd> exit<br><kbd>Alt+R</kbd> toggles from anywhere',
+      html: matchMedia('(pointer: coarse)').matches
+        ? 'In reader: swipe left / right for next / previous chapter'
+        : 'In reader: <kbd>←</kbd> <kbd>→</kbd> chapters · <kbd>−</kbd>/<kbd>+</kbd> zoom · <kbd>Esc</kbd> exit<br><kbd>Alt+R</kbd> toggles from anywhere',
     })
   );
 }
